@@ -397,6 +397,9 @@ then
 	*-*-linux*)
 		ac_sys_system=Linux
 		;;
+	*-*-freebsd*)
+		ac_sys_system=FreeBSD
+		;;
 	*-*-cygwin*)
 		ac_sys_system=Cygwin
 		;;
@@ -448,6 +451,9 @@ if test "$cross_compiling" = yes; then
 		;;
 	*-*-cygwin*)
 		_host_cpu=
+		;;
+	*-*-freebsd*)
+		_host_cpu=$host_cpu
 		;;
 	*-*-vxworks*)
 		_host_cpu=$host_cpu
