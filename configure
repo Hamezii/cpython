@@ -2880,20 +2880,22 @@ do
 set dummy $ac_prog; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_PYTHON_FOR_REGEN+:} false; then :
+if ${ac_cv_path_PYTHON_FOR_REGEN+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if test -n "$PYTHON_FOR_REGEN"; then
-  ac_cv_prog_PYTHON_FOR_REGEN="$PYTHON_FOR_REGEN" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+  case $PYTHON_FOR_REGEN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PYTHON_FOR_REGEN="$PYTHON_FOR_REGEN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
     for ac_exec_ext in '' $ac_executable_extensions; do
   if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_PYTHON_FOR_REGEN="$ac_prog"
+    ac_cv_path_PYTHON_FOR_REGEN="$as_dir/$ac_word$ac_exec_ext"
     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -2901,9 +2903,10 @@ done
   done
 IFS=$as_save_IFS
 
+  ;;
+esac
 fi
-fi
-PYTHON_FOR_REGEN=$ac_cv_prog_PYTHON_FOR_REGEN
+PYTHON_FOR_REGEN=$ac_cv_path_PYTHON_FOR_REGEN
 if test -n "$PYTHON_FOR_REGEN"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_FOR_REGEN" >&5
 $as_echo "$PYTHON_FOR_REGEN" >&6; }
@@ -2926,6 +2929,7 @@ $as_echo_n "checking for python interpreter for cross build... " >&6; }
         for interp in python$PACKAGE_VERSION python3 python; do
 	    which $interp >/dev/null 2>&1 || continue
 	    if $interp -c "import sys;sys.exit(not '.'.join(str(n) for n in sys.version_info[:2]) == '$PACKAGE_VERSION')"; then
+	        interp=$(which $interp)
 	        break
 	    fi
             interp=

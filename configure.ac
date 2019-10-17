@@ -58,7 +58,7 @@ AC_SUBST(host)
 # pybuilddir.txt will be created by --generate-posix-vars in the Makefile
 rm -f pybuilddir.txt
 
-AC_CHECK_PROGS(PYTHON_FOR_REGEN, python$PACKAGE_VERSION python3 python, python3)
+AC_PATH_PROGS(PYTHON_FOR_REGEN, python$PACKAGE_VERSION python3 python, python3)
 AC_SUBST(PYTHON_FOR_REGEN)
 
 if test "$cross_compiling" = yes; then
@@ -67,6 +67,7 @@ if test "$cross_compiling" = yes; then
         for interp in python$PACKAGE_VERSION python3 python; do
 	    which $interp >/dev/null 2>&1 || continue
 	    if $interp -c "import sys;sys.exit(not '.'.join(str(n) for n in sys.version_info@<:@:2@:>@) == '$PACKAGE_VERSION')"; then
+	        interp=$(which $interp)
 	        break
 	    fi
             interp=
