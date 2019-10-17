@@ -10561,6 +10561,7 @@ $as_echo_n "checking for pthread_create in -lpthread... " >&6; }
 /* end confdefs.h.  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 
 void * start_routine (void *arg) { exit (0); }
