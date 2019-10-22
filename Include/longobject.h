@@ -52,7 +52,10 @@ PyAPI_FUNC(PyObject *) PyLong_GetInfo(void);
 #error "sizeof(pid_t) is neither sizeof(int), sizeof(long) or sizeof(long long)"
 #endif /* SIZEOF_PID_T */
 
-#if SIZEOF_VOID_P == SIZEOF_INT
+#ifdef __CHERI_PURE_CAPABILITY__
+#  define _Py_PARSE_INTPTR "Py_intptr_t"
+#  define _Py_PARSE_UINTPTR "Py_uintptr_t"
+#elif SIZEOF_VOID_P == SIZEOF_INT
 #  define _Py_PARSE_INTPTR "i"
 #  define _Py_PARSE_UINTPTR "I"
 #elif SIZEOF_VOID_P == SIZEOF_LONG
