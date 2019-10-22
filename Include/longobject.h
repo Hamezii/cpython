@@ -53,6 +53,9 @@ PyAPI_FUNC(PyObject *) PyLong_GetInfo(void);
 #endif /* SIZEOF_PID_T */
 
 #ifdef __CHERI_PURE_CAPABILITY__
+// XXXAR: Should I just use SIZEOF_PY_ADDRESS instead of sizeof void_p?
+// Probably easier than adding parsing support for Py_intptr_t but won't
+// support parsing pointers rather than integers.
 #  define _Py_PARSE_INTPTR "Py_intptr_t"
 #  define _Py_PARSE_UINTPTR "Py_uintptr_t"
 #elif SIZEOF_VOID_P == SIZEOF_INT
