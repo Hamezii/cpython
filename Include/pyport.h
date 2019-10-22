@@ -109,6 +109,16 @@ typedef Py_intptr_t     Py_ssize_t;
 #   error "Python needs a typedef for Py_ssize_t in pyport.h."
 #endif
 
+#if defined(__CHERI_PURE_CAPABILITY__)
+typedef vaddr_t Py_addr_t;
+#elif SIZEOF_VOID_P == SIZEOF_INT
+typedef int Py_addr_t;
+#elif SIZEOF_VOID_P == SIZEOF_LONG
+typedef long Py_addr_t;
+#else
+#   error "Could not infer size of virtual address."
+#endif
+
 /* Py_hash_t is the same size as a pointer. */
 #define SIZEOF_PY_HASH_T SIZEOF_SIZE_T
 typedef Py_ssize_t Py_hash_t;
