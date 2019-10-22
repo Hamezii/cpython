@@ -131,10 +131,10 @@ _Py_HashDouble(double v)
 Py_hash_t
 _Py_HashPointerRaw(const void *p)
 {
-    size_t y = (size_t)p;
+    Py_addr_t y = (Py_addr_t)p;
     /* bottom 3 or 4 bits are likely to be 0; rotate y by 4 to avoid
        excessive hash collisions for dicts and sets */
-    y = (y >> 4) | (y << (8 * SIZEOF_VOID_P - 4));
+    y = (y >> 4) | (y << (8 * SIZEOF_PY_ADDRESS - 4));
     return (Py_hash_t)y;
 }
 

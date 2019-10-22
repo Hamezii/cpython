@@ -109,8 +109,12 @@ typedef Py_intptr_t     Py_ssize_t;
 #   error "Python needs a typedef for Py_ssize_t in pyport.h."
 #endif
 
+#define SIZEOF_PY_ADDRESS SIZEOF_VOID_P
 #if defined(__CHERI_PURE_CAPABILITY__)
 typedef vaddr_t Py_addr_t;
+// Address range is defined by __CHERI_ADDRESS_BITS__
+#undef SIZEOF_PY_ADDRESS
+#define SIZEOF_PY_ADDRESS (__CHERI_ADDRESS_BITS__ / 8)
 #elif SIZEOF_VOID_P == SIZEOF_INT
 typedef int Py_addr_t;
 #elif SIZEOF_VOID_P == SIZEOF_LONG
