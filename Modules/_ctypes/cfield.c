@@ -1326,6 +1326,7 @@ z_set(void *ptr, PyObject *value, Py_ssize_t size)
         Py_INCREF(value);
         return value;
     } else if (PyLong_Check(value)) {
+#warning this is probably wrong for purecap
 #if SIZEOF_VOID_P == SIZEOF_LONG_LONG
         *(char **)ptr = (char *)PyLong_AsUnsignedLongLongMask(value);
 #else
