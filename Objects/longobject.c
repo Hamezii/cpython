@@ -1095,7 +1095,11 @@ _PyLong_AsByteArray(PyLongObject* v,
 PyObject *
 PyLong_FromVoidPtr(void *p)
 {
-#if SIZEOF_VOID_P <= SIZEOF_LONG
+#ifdef __CHERI_PURE_CAPABILITY__
+    /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
+    fprintf(stderrr, "%s is not correct for CHERI!\n", __func__);
+    return PyLong_FromUnsignedLong((unsigned long)(uintptr_t)p);
+#elif SIZEOF_VOID_P <= SIZEOF_LONG
     return PyLong_FromUnsignedLong((unsigned long)(uintptr_t)p);
 #else
 
@@ -1112,7 +1116,12 @@ PyLong_FromVoidPtr(void *p)
 void *
 PyLong_AsVoidPtr(PyObject *vv)
 {
-#if SIZEOF_VOID_P <= SIZEOF_LONG
+#if defined(__CHERI_PURE_CAPABILITY__) || SIZEOF_VOID_P <= SIZEOF_LONG
+#ifdef __CHERI_PURE_CAPABILITY__
+#warning "this is icorrect but should hopefully work for most cases"
+    fprintf(stderrr, "%s is not correct for CHERI!\n", __func__);
+#endif
+    /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
     long x;
 
     if (PyLong_Check(vv) && _PyLong_Sign(vv) < 0)
@@ -1135,7 +1144,7 @@ PyLong_AsVoidPtr(PyObject *vv)
 
     if (x == -1 && PyErr_Occurred())
         return NULL;
-    return (void *)x;
+    return (void *)(uintptr_t)x;
 }
 
 /* Initial long long support by Chris Herborth (chrish@qnx.com), later
