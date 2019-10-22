@@ -537,7 +537,7 @@ struct _obmalloc_mgmt {
 
 */
 
-#if SIZEOF_VOID_P == 8
+#if SIZEOF_PY_ADDRESS == 8
 
 /* number of bits in a pointer */
 #define POINTER_BITS 64
@@ -556,7 +556,7 @@ struct _obmalloc_mgmt {
 /* use the top and mid layers of the radix tree */
 #define USE_INTERIOR_NODES
 
-#elif SIZEOF_VOID_P == 4
+#elif SIZEOF_PY_ADDRESS == 4
 
 #define POINTER_BITS 32
 #define IGNORE_BITS 0
