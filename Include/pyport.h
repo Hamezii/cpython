@@ -137,6 +137,16 @@ typedef Py_intptr_t     Py_ssize_t;
 #   error "Python needs a typedef for Py_ssize_t in pyport.h."
 #endif
 
+#if defined(__CHERI_PURE_CAPABILITY__)
+typedef vaddr_t Py_addr_t;
+#elif SIZEOF_VOID_P == SIZEOF_INT
+typedef int Py_addr_t;
+#elif SIZEOF_VOID_P == SIZEOF_LONG
+typedef long Py_addr_t;
+#else
+#   error "Could not infer size of virtual address."
+#endif
+
 /* Smallest negative value of type Py_ssize_t. */
 #define PY_SSIZE_T_MIN (-PY_SSIZE_T_MAX-1)
 
