@@ -19,7 +19,7 @@ PyAPI_FUNC(Py_hash_t) _Py_HashBytes(const void*, Py_ssize_t);
    _Py_HashDouble in Python/pyhash.c.  Numeric hashes are based on
    reduction modulo the prime 2**_PyHASH_BITS - 1. */
 
-#if SIZEOF_VOID_P >= 8
+#if SIZEOF_PY_ADDRESS >= 8
 #  define _PyHASH_BITS 61
 #else
 #  define _PyHASH_BITS 31

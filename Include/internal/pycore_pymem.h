@@ -181,17 +181,17 @@ PyAPI_FUNC(int) _PyMem_SetDefaultAllocator(
    with FORBIDDENBYTE (0xFD). */
 static inline int _PyMem_IsPtrFreed(void *ptr)
 {
-    uintptr_t value = (uintptr_t)ptr;
-#if SIZEOF_VOID_P == 8
+    Py_addr_t value = (Py_addr_t)ptr;
+#if SIZEOF_PY_ADDRESS == 8
     return (value == 0
-            || value == (uintptr_t)0xCDCDCDCDCDCDCDCD
-            || value == (uintptr_t)0xDDDDDDDDDDDDDDDD
-            || value == (uintptr_t)0xFDFDFDFDFDFDFDFD);
-#elif SIZEOF_VOID_P == 4
+            || value == (Py_addr_t)0xCDCDCDCDCDCDCDCD
+            || value == (Py_addr_t)0xDDDDDDDDDDDDDDDD
+            || value == (Py_addr_t)0xFDFDFDFDFDFDFDFD);
+#elif SIZEOF_PY_ADDRESS == 4
     return (value == 0
-            || value == (uintptr_t)0xCDCDCDCD
-            || value == (uintptr_t)0xDDDDDDDD
-            || value == (uintptr_t)0xFDFDFDFD);
+            || value == (Py_addr_t)0xCDCDCDCD
+            || value == (Py_addr_t)0xDDDDDDDD
+            || value == (Py_addr_t)0xFDFDFDFD);
 #else
 #  error "unknown pointer size"
 #endif

@@ -40,7 +40,7 @@
 #elif PY_BIG_ENDIAN
   /* opt64 is not yet supported on big endian platforms */
   #define KeccakOpt 32
-#elif SIZEOF_VOID_P == 8 && defined(PY_UINT64_T)
+#elif SIZEOF_PY_ADDRESS == 8 && defined(PY_UINT64_T)
   /* opt64 works only on little-endian 64bit platforms with unsigned int64 */
   #define KeccakOpt 64
 #else
