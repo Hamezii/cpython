@@ -76,6 +76,13 @@
 #endif
 
 /* Below "a" is a power of 2. */
+#if __has_builtin(__builtin_align_down) /* Means we have the other built-ins too */
+#define _Py_SIZE_ROUND_DOWN(n, a) __builtin_align_down(n, a)
+#define _Py_SIZE_ROUND_UP(n, a) __builtin_align_up(n, a)
+#define _Py_ALIGN_DOWN(p, a) __builtin_align_down(p, a)
+#define _Py_ALIGN_UP(p, a) __builtin_align_up(p, a)
+#define _Py_IS_ALIGNED(p, a) __builtin_is_aligned(p, a)
+#else
 /* Round down size "n" to be a multiple of "a". */
 #define _Py_SIZE_ROUND_DOWN(n, a) ((size_t)(n) & ~(size_t)((a) - 1))
 /* Round up size "n" to be a multiple of "a". */
@@ -88,6 +95,7 @@
         (uintptr_t)((a) - 1)) & ~(uintptr_t)((a) - 1)))
 /* Check if pointer "p" is aligned to "a"-bytes boundary. */
 #define _Py_IS_ALIGNED(p, a) (!((uintptr_t)(p) & (uintptr_t)((a) - 1)))
+#endif
 
 /* Use this for unused arguments in a function definition to silence compiler
  * warnings. Example:
