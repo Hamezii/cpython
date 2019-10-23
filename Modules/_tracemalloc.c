@@ -49,7 +49,7 @@ static PyThread_type_lock tables_lock;
 
 /* Pack the frame_t structure to reduce the memory footprint. */
 typedef struct
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__CHERI_PURE_CAPABILITY__)
 __attribute__((packed))
 #endif
 {
@@ -60,7 +60,7 @@ __attribute__((packed))
 /* Pack the frame_t structure to reduce the memory footprint on 64-bit
    architectures: 12 bytes instead of 16. */
 typedef struct
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__CHERI_PURE_CAPABILITY__)
 __attribute__((packed))
 #elif defined(_MSC_VER)
 #pragma pack(push, 4)
