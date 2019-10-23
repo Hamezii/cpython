@@ -951,6 +951,27 @@ convertsimple(PyObject *arg, const char **p_format, va_list *p_va, int flags,
             RETURN_ERR_OCCURRED;
         break;
     }
+    case 'P': {/* pointer (as void*,inptr_t or uintptr_t) */
+        void **p = va_arg(*p_va, void**);
+        void *ival;
+        /* Must pass the voidptr/signed/unsigned flag, too. */
+        if (!(*format == 's' || *format == 'u' || *format == 'v')) {
+            return converterr(
+                /* XXX: test_getargs2.py expects the impossible message */
+                /* "(invalid use of 'P' format character)", */
+                "(impossible<bad format char>)",
+                arg, msgbuf, bufsize);
+        }
+        format++;
+        if (float_argument_error(arg))
+            RETURN_ERR_OCCURRED;
+        ival = PyLong_AsVoidPtr(arg);
+        if (ival == NULL && PyErr_Occurred())
+            RETURN_ERR_OCCURRED;
+        else
+            *p = ival;
+        break;
+    }
 
     /* XXX WAAAAH!  's', 'y', 'z', 'u', 'Z', 'e', 'w' codes all
        need to be cleaned up! */
@@ -2559,7 +2580,6 @@ skipitem(const char **p_format, va_list *p_va, int flags)
      * codes that take a single data pointer as an argument
      * (the type of the pointer is irrelevant)
      */
-
     case 'b': /* byte -- very short int */
     case 'B': /* byte as bitfield */
     case 'h': /* short int */
@@ -2584,6 +2604,19 @@ skipitem(const char **p_format, va_list *p_va, int flags)
             if (p_va != NULL) {
                 (void) va_arg(*p_va, void *);
             }
+            break;
+        }
+    case 'P': /* C pointer as uintptr_t/intptr_t/void* */
+        {
+            if (p_va != NULL) {
+                (void) va_arg(*p_va, void *);
+            }
+            /* after 'P', only 'v', 's' and 'u' is allowed */
+            if (!(*format == 's' || *format == 'u' || *format == 'v')) {
+                /* return "invalid use of 'P' format character"; */
+                goto err;
+            }
+            format++;
             break;
         }
 

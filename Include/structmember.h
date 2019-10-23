@@ -53,7 +53,8 @@ typedef struct PyMemberDef {
 #define T_ULONGLONG     18
 
 #define T_PYSSIZET      19      /* Py_ssize_t */
-#define T_NONE          20      /* Value is always None */
+#define T_CPOINTER      20      /* void* */
+#define T_NONE          21      /* Value is always None */
 
 
 /* Flags */
