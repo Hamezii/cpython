@@ -2824,9 +2824,9 @@ _long_shared(PyThreadState *tstate, PyObject *obj,
         }
         return -1;
     }
-    _PyCrossInterpreterData_Init(data, tstate->interp, (void *)value, NULL,
+    _PyCrossInterpreterData_Init(data, tstate->interp, (void *)(Py_intptr_t)value, NULL,
             _new_long_object);
-    // data->obj and data->free remain NULL
+    // data->obj and data->free remain NUL
     return 0;
 }
 

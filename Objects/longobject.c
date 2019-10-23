@@ -14,6 +14,7 @@
 #include <float.h>
 #include <stddef.h>
 #include <stdlib.h>               // abs()
+#include <stdio.h>
 
 #include "clinic/longobject.c.h"
 /*[clinic input]
@@ -1065,8 +1066,9 @@ PyLong_FromVoidPtr(void *p)
 {
 #ifdef __CHERI_PURE_CAPABILITY__
     /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
-    fprintf(stderrr, "%s is not correct for CHERI!\n", __func__);
-    return PyLong_FromUnsignedLong((unsigned long)(uintptr_t)p);
+    fprintf(stderr, "%s is not correct for CHERI!\n", __func__);
+    PyErr_Format(PyExc_ValueError, "%s is not correct for CHERI!\n", __func__);
+    return NULL;
 #elif SIZEOF_VOID_P <= SIZEOF_LONG
     return PyLong_FromUnsignedLong((unsigned long)(uintptr_t)p);
 #else
@@ -1084,11 +1086,12 @@ PyLong_FromVoidPtr(void *p)
 void *
 PyLong_AsVoidPtr(PyObject *vv)
 {
-#if defined(__CHERI_PURE_CAPABILITY__) || SIZEOF_VOID_P <= SIZEOF_LONG
-#ifdef __CHERI_PURE_CAPABILITY__
-#warning "this is icorrect but should hopefully work for most cases"
-    fprintf(stderrr, "%s is not correct for CHERI!\n", __func__);
-#endif
+#if defined(__CHERI_PURE_CAPABILITY__)
+    fprintf(stderr, "%s is not correct for CHERI!\n", __func__);
+    PyErr_Format(PyExc_ValueError, "%s is not correct for CHERI!\n", __func__);
+    return NULL;
+#else
+#if SIZEOF_VOID_P <= SIZEOF_LONG
     /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
     long x;
 
@@ -1117,6 +1120,7 @@ PyLong_AsVoidPtr(PyObject *vv)
     if (x == -1 && PyErr_Occurred())
         return NULL;
     return (void *)(uintptr_t)x;
+#endif /* !defined(__CHERI_PURE_CAPABILITY__) */
 }
 
 /* Initial long long support by Chris Herborth (chrish@qnx.com), later
