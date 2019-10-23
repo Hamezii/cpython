@@ -57,15 +57,8 @@
  * Format codes
  */
 
-#if SIZEOF_VOID_P == SIZEOF_LONG
-#  define F_POINTER "k"
-#  define T_POINTER T_ULONG
-#elif SIZEOF_VOID_P == SIZEOF_LONG_LONG
-#  define F_POINTER "K"
-#  define T_POINTER T_ULONGLONG
-#else
-#  error "can't find format code for unsigned integer of same size as void*"
-#endif
+#define F_POINTER "Pv"
+#define T_POINTER T_CPOINTER
 
 #ifdef MS_WINDOWS
 #  define F_HANDLE F_POINTER

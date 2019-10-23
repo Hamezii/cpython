@@ -80,6 +80,9 @@ PyMember_GetOne(const char *addr, PyMemberDef *l)
     case T_ULONGLONG:
         v = PyLong_FromUnsignedLongLong(*(unsigned long long *)addr);
         break;
+    case T_CPOINTER:
+        v = PyLong_FromVoidPtr(*(void **)addr);
+        break;
     case T_NONE:
         v = Py_None;
         Py_INCREF(v);
@@ -283,6 +286,11 @@ PyMember_SetOne(char *addr, PyMemberDef *l, PyObject *v)
             return -1;
         break;
         }
+    case T_CPOINTER: {
+        void* value = PyLong_AsVoidPtr(v);
+        *(void**)addr = value;
+        break;
+    }
     default:
         PyErr_Format(PyExc_SystemError,
                      "bad memberdescr type for %s", l->name);

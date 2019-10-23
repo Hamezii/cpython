@@ -1712,25 +1712,12 @@ static PyTypeObject kqueue_queue_Type;
 
 #define kqueue_queue_Check(op) (PyObject_TypeCheck((op), &kqueue_queue_Type))
 
+#define T_UINTPTRT         T_CPOINTER
+#define T_INTPTRT          T_CPOINTER
+#define UINTPTRT_FMT_UNIT  "Pu"
+#define INTPTRT_FMT_UNIT   "Ps"
 #if (SIZEOF_UINTPTR_T != SIZEOF_VOID_P)
 #   error uintptr_t does not match void *!
-#elif (SIZEOF_UINTPTR_T == SIZEOF_LONG_LONG)
-#   define T_UINTPTRT         T_ULONGLONG
-#   define T_INTPTRT          T_LONGLONG
-#   define UINTPTRT_FMT_UNIT  "K"
-#   define INTPTRT_FMT_UNIT   "L"
-#elif (SIZEOF_UINTPTR_T == SIZEOF_LONG)
-#   define T_UINTPTRT         T_ULONG
-#   define T_INTPTRT          T_LONG
-#   define UINTPTRT_FMT_UNIT  "k"
-#   define INTPTRT_FMT_UNIT   "l"
-#elif (SIZEOF_UINTPTR_T == SIZEOF_INT)
-#   define T_UINTPTRT         T_UINT
-#   define T_INTPTRT          T_INT
-#   define UINTPTRT_FMT_UNIT  "I"
-#   define INTPTRT_FMT_UNIT   "i"
-#else
-#   error uintptr_t does not match int, long, or long long!
 #endif
 
 #if SIZEOF_LONG_LONG == 8
