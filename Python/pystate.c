@@ -1661,7 +1661,7 @@ _long_shared(PyObject *obj, _PyCrossInterpreterData *data)
         }
         return -1;
     }
-    data->data = (void *)value;
+    data->data = (void *)(Py_intptr_t)value;
     data->obj = NULL;
     data->new_object = _new_long_object;
     data->free = NULL;
