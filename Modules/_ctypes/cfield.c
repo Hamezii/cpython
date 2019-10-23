@@ -1269,12 +1269,7 @@ z_set(void *ptr, PyObject *value, Py_ssize_t size)
         *(const char **)ptr = PyBytes_AsString(value);
         return Py_NewRef(value);
     } else if (PyLong_Check(value)) {
-#warning this is probably wrong for purecap
-#if SIZEOF_VOID_P == SIZEOF_LONG_LONG
-        *(char **)ptr = (char *)PyLong_AsUnsignedLongLongMask(value);
-#else
-        *(char **)ptr = (char *)PyLong_AsUnsignedLongMask(value);
-#endif
+        *(char **)ptr = (char *)PyLong_AsVoidPtr(value);
         _RET(value);
     }
     PyErr_Format(PyExc_TypeError,
@@ -1307,11 +1302,7 @@ Z_set(void *ptr, PyObject *value, Py_ssize_t size)
         return Py_NewRef(value);
     }
     if (PyLong_Check(value)) {
-#if SIZEOF_VOID_P == SIZEOF_LONG_LONG
-        *(wchar_t **)ptr = (wchar_t *)PyLong_AsUnsignedLongLongMask(value);
-#else
-        *(wchar_t **)ptr = (wchar_t *)PyLong_AsUnsignedLongMask(value);
-#endif
+        *(wchar_t **)ptr = (wchar_t *)PyLong_AsVoidPtr(value);
         Py_RETURN_NONE;
     }
     if (!PyUnicode_Check(value)) {
@@ -1424,14 +1415,7 @@ P_set(void *ptr, PyObject *value, Py_ssize_t size)
         return NULL;
     }
 
-#if SIZEOF_VOID_P <= SIZEOF_LONG
-    v = (void *)PyLong_AsUnsignedLongMask(value);
-#else
-#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
-#   error "PyLong_AsVoidPtr: sizeof(long long) < sizeof(void*)"
-#endif
-    v = (void *)PyLong_AsUnsignedLongLongMask(value);
-#endif
+    v = PyLong_AsVoidPtr(value);
 
     if (PyErr_Occurred())
         return NULL;

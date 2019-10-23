@@ -77,7 +77,8 @@ struct PyMemberDef {
 #define Py_T_ULONGLONG 18
 
 #define Py_T_PYSSIZET  19      /* Py_ssize_t */
-#define _Py_T_NONE     20 // Deprecated. Value is always None.
+#define Py_T_CPOINTER  20 /* void* */
+#define _Py_T_NONE     21 // Deprecated. Value is always None.
 
 /* Flags */
 #define Py_READONLY            1

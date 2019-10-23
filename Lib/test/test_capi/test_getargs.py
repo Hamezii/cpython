@@ -1223,8 +1223,8 @@ class SkipitemTest(unittest.TestCase):
         tuple_1 = (0,)
         dict_b = {'b':1}
         keywords = ["a", "b"]
+        supported = ('s#', 's*', 'z#', 'z*', 'u#', 'Z#', 'y#', 'y*', 'w#', 'w*', 'Ps', 'Pu', 'Pv')
 
-        supported = ('s#', 's*', 'z#', 'z*', 'y#', 'y*', 'w#', 'w*')
         for c in string.ascii_letters:
             for c2 in '#*':
                 f = c + c2

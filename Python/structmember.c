@@ -92,6 +92,9 @@ PyMember_GetOne(const char *obj_addr, PyMemberDef *l)
     case T_ULONGLONG:
         v = PyLong_FromUnsignedLongLong(*(unsigned long long *)addr);
         break;
+    case T_CPOINTER:
+        v = PyLong_FromVoidPtr(*(void **)addr);
+        break;
     case T_NONE:
         v = Py_NewRef(Py_None);
         break;
@@ -331,6 +334,9 @@ PyMember_SetOne(char *addr, PyMemberDef *l, PyObject *v)
             }
             *(unsigned long long*)addr = ulonglong_val;
         }
+    case T_CPOINTER: {
+        void* value = PyLong_AsVoidPtr(v);
+        *(void**)addr = value;
         break;
     }
     default:

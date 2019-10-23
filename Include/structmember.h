@@ -40,6 +40,7 @@ extern "C" {
 #define T_LONGLONG  Py_T_LONGLONG
 #define T_ULONGLONG Py_T_ULONGLONG
 #define T_PYSSIZET  Py_T_PYSSIZET
+#define T_CPOINTER  Py_T_CPOINTER
 #define T_NONE      _Py_T_NONE
 
 /* Flags */
