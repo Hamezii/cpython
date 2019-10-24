@@ -1511,7 +1511,7 @@ encoder_listencode_obj(PyEncoderObject *s, _PyAccu *acc,
         PyObject *ident = NULL;
         if (s->markers != Py_None) {
             int has_key;
-            ident = PyLong_FromVoidPtr(obj);
+            ident = PyLong_FromPyAddr((Py_addr_t)obj);
             if (ident == NULL)
                 return -1;
             has_key = PyDict_Contains(s->markers, ident);
@@ -1583,7 +1583,7 @@ encoder_listencode_dict(PyEncoderObject *s, _PyAccu *acc,
 
     if (s->markers != Py_None) {
         int has_key;
-        ident = PyLong_FromVoidPtr(dct);
+        ident = PyLong_FromPyAddr((Py_addr_t)dct);
         if (ident == NULL)
             goto bail;
         has_key = PyDict_Contains(s->markers, ident);
@@ -1743,7 +1743,7 @@ encoder_listencode_list(PyEncoderObject *s, _PyAccu *acc,
 
     if (s->markers != Py_None) {
         int has_key;
-        ident = PyLong_FromVoidPtr(seq);
+        ident = PyLong_FromPyAddr((Py_addr_t)seq);
         if (ident == NULL)
             goto bail;
         has_key = PyDict_Contains(s->markers, ident);
