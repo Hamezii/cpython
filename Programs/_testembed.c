@@ -1101,7 +1101,7 @@ static int test_open_code_hook(void)
         PyErr_Print();
         result = 3;
     } else {
-        void *cmp = PyLong_AsVoidPtr(r);
+        void *cmp = PyInternalPointer_AsVoidPointer(r);
         Py_DECREF(r);
         if (cmp != &result) {
             printf("Did not get expected result from hook\n");
@@ -1118,7 +1118,7 @@ static int test_open_code_hook(void)
             PyErr_Print();
             result = 5;
         } else {
-            void *cmp = PyLong_AsVoidPtr(r);
+            void *cmp = PyInternalPointer_AsVoidPointer(r);
             Py_DECREF(r);
             if (cmp != &result) {
                 printf("Did not get expected result from hook\n");

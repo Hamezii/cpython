@@ -1308,7 +1308,7 @@ PyObject *_ctypes_callproc(PPROC pProc,
 static int
 _parse_voidp(PyObject *obj, void **address)
 {
-    *address = PyLong_AsVoidPtr(obj);
+    *address = PyInternalPointer_AsVoidPointer(obj);
     if (*address == NULL)
         return 0;
     return 1;
@@ -1765,7 +1765,7 @@ addressof(PyObject *self, PyObject *obj)
 static int
 converter(PyObject *obj, void **address)
 {
-    *address = PyLong_AsVoidPtr(obj);
+    *address = PyInternalPointer_AsVoidPointer(obj);
     return *address != NULL;
 }
 

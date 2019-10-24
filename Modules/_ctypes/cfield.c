@@ -1322,12 +1322,12 @@ z_set(void *ptr, PyObject *value, Py_ssize_t size)
         *(const char **)ptr = PyBytes_AsString(value);
         Py_INCREF(value);
         return value;
-    } else if (PyLong_Check(value)) {
-        *(char **)ptr = (char *)PyLong_AsVoidPtr(value);
+    } else if (PyInternalPointer_Check(value)) {
+        *(char **)ptr = (char *)PyInternalPointer_AsVoidPointer(value);
         _RET(value);
     }
     PyErr_Format(PyExc_TypeError,
-                 "bytes or integer address expected instead of %s instance",
+                 "bytes or pointer expected instead of %s instance",
                  Py_TYPE(value)->tp_name);
     return NULL;
 }
@@ -1357,13 +1357,13 @@ Z_set(void *ptr, PyObject *value, Py_ssize_t size)
         Py_INCREF(value);
         return value;
     }
-    if (PyLong_Check(value)) {
-        *(wchar_t **)ptr = (wchar_t *)PyLong_AsVoidPtr(value);
+    if (PyInternalPointer_Check(value)) {
+        *(wchar_t **)ptr = (wchar_t *)PyInternalPointer_AsVoidPointer(value);
         Py_RETURN_NONE;
     }
     if (!PyUnicode_Check(value)) {
         PyErr_Format(PyExc_TypeError,
-                     "unicode string or integer address expected instead of %s instance",
+                     "unicode string or pointer expected instead of %s instance",
                      Py_TYPE(value)->tp_name);
         return NULL;
     }
@@ -1465,13 +1465,13 @@ P_set(void *ptr, PyObject *value, Py_ssize_t size)
         _RET(value);
     }
 
-    if (!PyLong_Check(value)) {
+    if (!PyInternalPointer_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
                         "cannot be converted to pointer");
         return NULL;
     }
 
-    v = PyLong_AsVoidPtr(value);
+    v = PyInternalPointer_AsVoidPointer(value);
 
     if (PyErr_Occurred())
         return NULL;

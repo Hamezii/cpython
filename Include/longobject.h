@@ -81,7 +81,7 @@ PyAPI_FUNC(double) _PyLong_Frexp(PyLongObject *a, Py_ssize_t *e);
 
 PyAPI_FUNC(double) PyLong_AsDouble(PyObject *);
 Py_DEPRECATED(3.8) PyAPI_FUNC(PyObject *) PyLong_FromVoidPtr(void *);
-Py_DEPRECATED(3.8) PyAPI_FUNC(void *) PyLong_AsVoidPtr(PyObject *);
+// Py_DEPRECATED(3.8) PyAPI_FUNC(void *) PyLong_AsVoidPtr(PyObject *);
 
 PyAPI_FUNC(PyObject *) PyLong_FromLongLong(long long);
 PyAPI_FUNC(PyObject *) PyLong_FromUnsignedLongLong(unsigned long long);
