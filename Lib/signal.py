@@ -44,8 +44,8 @@ def _enum_to_int(value):
 
 @_wraps(_signal.signal)
 def signal(signalnum, handler):
-    handler = _signal.signal(_enum_to_int(signalnum), handler)
-    return handler
+    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))
+    return _int_to_enum(handler, Handlers)
 
 
 @_wraps(_signal.getsignal)
