@@ -55,8 +55,8 @@ def _wraps(wrapped):
 
 @_wraps(_signal.signal)
 def signal(signalnum, handler):
-    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))
-    return _int_to_enum(handler, Handlers)
+    handler = _signal.signal(_enum_to_int(signalnum), handler)
+    return handler
 
 
 @_wraps(_signal.getsignal)
