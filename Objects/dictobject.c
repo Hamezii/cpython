@@ -301,7 +301,7 @@ PyDict_Fini(void)
             2 : sizeof(int32_t))
 #endif
 #define DK_ENTRIES(dk) \
-    ((PyDictKeyEntry*)(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)]))
+    ((PyDictKeyEntry*)_Py_ALIGN_UP(&((int8_t*)((dk)->dk_indices))[DK_SIZE(dk) * DK_IXSIZE(dk)], _Alignof(PyDictKeyEntry)))
 
 #define DK_MASK(dk) (((dk)->dk_size)-1)
 #define IS_POWER_OF_2(x) (((x) & (x-1)) == 0)
@@ -556,7 +556,7 @@ static PyDictKeysObject *new_keys_object(Py_ssize_t size)
     }
     else {
         dk = PyObject_MALLOC(sizeof(PyDictKeysObject)
-                             + es * size
+                             + _Py_SIZE_ROUND_UP(es * size, _Alignof(PyDictKeyEntry))
                              + sizeof(PyDictKeyEntry) * usable);
         if (dk == NULL) {
             PyErr_NoMemory();
@@ -3148,7 +3148,7 @@ _PyDict_SizeOf(PyDictObject *mp)
        in the type object. */
     if (mp->ma_keys->dk_refcnt == 1)
         res += (sizeof(PyDictKeysObject)
-                + DK_IXSIZE(mp->ma_keys) * size
+                + _Py_SIZE_ROUND_UP(DK_IXSIZE(mp->ma_keys) * size, _Alignof(PyDictKeyEntry))
                 + sizeof(PyDictKeyEntry) * usable);
     return res;
 }
@@ -3157,7 +3157,7 @@ Py_ssize_t
 _PyDict_KeysSize(PyDictKeysObject *keys)
 {
     return (sizeof(PyDictKeysObject)
-            + DK_IXSIZE(keys) * DK_SIZE(keys)
+            + _Py_SIZE_ROUND_UP(DK_IXSIZE(keys) * DK_SIZE(keys), _Alignof(PyDictKeyEntry))
             + USABLE_FRACTION(DK_SIZE(keys)) * sizeof(PyDictKeyEntry));
 }
 
