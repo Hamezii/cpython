@@ -568,12 +568,12 @@ CDataType_from_address(PyObject *type, PyObject *value)
 {
     void *buf;
 
-    if (!PyInternalPointer_Check(value)) {
+    if (!PyNativePointer_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
             "valid pointer expected");
         return NULL;
     }
-    buf = PyInternalPointer_AsVoidPointer(value);
+    buf = PyNativePointer_AsVoidPointer(value);
     if (PyErr_Occurred())
         return NULL;
     return PyCData_AtAddress(type, buf);
@@ -716,13 +716,13 @@ CDataType_in_dll(PyObject *type, PyObject *args)
     obj = PyObject_GetAttrString(dll, "_handle");
     if (!obj)
         return NULL;
-    if (!PyInternalPointer_Check(obj)) {
+    if (!PyNativePointer_Check(obj)) {
         PyErr_SetString(PyExc_TypeError,
                         "the _handle attribute of the second argument must be a pointer");
         Py_DECREF(obj);
         return NULL;
     }
-    handle = (void *)PyInternalPointer_AsVoidPointer(obj);
+    handle = (void *)PyNativePointer_AsVoidPointer(obj);
     Py_DECREF(obj);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_ValueError,
@@ -3522,14 +3522,14 @@ PyCFuncPtr_FromDll(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_DECREF(ftuple);
         return NULL;
     }
-    if (!PyInternalPointer_Check(obj)) {
+    if (!PyNativePointer_Check(obj)) {
         PyErr_SetString(PyExc_TypeError,
                         "the _handle attribute of the second argument must be a pointer");
         Py_DECREF(ftuple);
         Py_DECREF(obj);
         return NULL;
     }
-    handle = (void *)PyInternalPointer_AsVoidPointer(obj);
+    handle = (void *)PyNativePointer_AsVoidPointer(obj);
     Py_DECREF(obj);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_ValueError,
@@ -3656,9 +3656,9 @@ PyCFuncPtr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 #endif
 
     if (1 == PyTuple_GET_SIZE(args)
-        && (PyInternalPointer_Check(PyTuple_GET_ITEM(args, 0)))) {
+        && (PyNativePointer_Check(PyTuple_GET_ITEM(args, 0)))) {
         CDataObject *ob;
-        void *ptr = PyInternalPointer_AsVoidPointer(PyTuple_GET_ITEM(args, 0));
+        void *ptr = PyNativePointer_AsVoidPointer(PyTuple_GET_ITEM(args, 0));
         if (ptr == NULL && PyErr_Occurred())
             return NULL;
         ob = (CDataObject *)GenericPyCData_new(type, args, kwds);

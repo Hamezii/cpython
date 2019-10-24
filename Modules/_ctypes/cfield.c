@@ -1325,8 +1325,8 @@ z_set(void *ptr, PyObject *value, Py_ssize_t size)
         *(char **)ptr = PyBytes_AsString(value);
         Py_INCREF(value);
         return value;
-    } else if (PyInternalPointer_Check(value)) {
-        *(char **)ptr = (char *)PyInternalPointer_AsVoidPointer(value);
+    } else if (PyNativePointer_Check(value)) {
+        *(char **)ptr = (char *)PyNativePointer_AsVoidPointer(value);
         _RET(value);
     }
     PyErr_Format(PyExc_TypeError,
@@ -1359,8 +1359,8 @@ Z_set(void *ptr, PyObject *value, Py_ssize_t size)
         Py_INCREF(value);
         return value;
     }
-    if (PyInternalPointer_Check(value)) {
-        *(wchar_t **)ptr = (wchar_t *)PyInternalPointer_AsVoidPointer(value);
+    if (PyNativePointer_Check(value)) {
+        *(wchar_t **)ptr = (wchar_t *)PyNativePointer_AsVoidPointer(value);
         Py_RETURN_NONE;
     }
     if (!PyUnicode_Check(value)) {
@@ -1467,13 +1467,13 @@ P_set(void *ptr, PyObject *value, Py_ssize_t size)
         _RET(value);
     }
 
-    if (!PyInternalPointer_Check(value)) {
+    if (!PyNativePointer_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
                         "cannot be converted to pointer");
         return NULL;
     }
 
-    v = PyInternalPointer_AsVoidPointer(value);
+    v = PyNativePointer_AsVoidPointer(value);
 
     if (PyErr_Occurred())
         return NULL;

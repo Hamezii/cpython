@@ -1351,13 +1351,13 @@ PyInit__signal(void)
     /* Add some symbolic constants to the module */
     d = PyModule_GetDict(m);
 
-    DefaultHandler = PyLong_FromVoidPtr((void *)SIG_DFL);
+    DefaultHandler = PyNativePointer_FromVoidPointer((void *)SIG_DFL);
     if (!DefaultHandler ||
         PyDict_SetItemString(d, "SIG_DFL", DefaultHandler) < 0) {
         goto finally;
     }
 
-    IgnoreHandler = PyLong_FromVoidPtr((void *)SIG_IGN);
+    IgnoreHandler = PyNativePointer_FromVoidPointer((void *)SIG_IGN);
     if (!IgnoreHandler ||
         PyDict_SetItemString(d, "SIG_IGN", IgnoreHandler) < 0) {
         goto finally;

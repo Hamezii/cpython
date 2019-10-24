@@ -1119,14 +1119,14 @@ PyLong_AsPyAddr(PyObject *vv)
 PyObject *
 PyLong_FromVoidPtr(void *p)
 {
-    return PyInternalPointer_FromVoidPointer(p);
+    return PyNativePointer_FromVoidPointer(p);
 }
 
 /* Get a C pointer from an int object. */
 void *
 PyLong_AsVoidPtr(PyObject *vv)
 {
-    return PyInternalPointer_AsVoidPointer(vv);
+    return PyNativePointer_AsVoidPointer(vv);
 }
 
 /* Initial long long support by Chris Herborth (chrish@qnx.com), later

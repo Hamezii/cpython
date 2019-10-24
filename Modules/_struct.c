@@ -513,8 +513,10 @@ static PyObject *
 nu_void_p(const char *p, const formatdef *f)
 {
     void *x;
+
+    assert(_Py_IS_ALIGNED(p, _Alignof(void *)));
     memcpy((char *)&x, p, sizeof x);
-    return PyLong_FromVoidPtr(x);
+    return PyNativePointer_FromVoidPointer(x);
 }
 
 static int
@@ -742,12 +744,13 @@ np_void_p(char *p, PyObject *v, const formatdef *f)
 {
     void *x;
 
-    v = get_pylong(v);
-    if (v == NULL)
-        return -1;
-    assert(PyInternalPointer_Check(v));
-    x = PyInternalPointer_AsVoidPointer(v);
-    Py_DECREF(v);
+    assert(_Py_IS_ALIGNED(p, _Alignof(void *)));
+    if (!PyNativePointer_Check(v)) {
+      PyErr_SetString(StructError,
+          "required argument is not a valid pointer or a NULL pointer");
+      return -1;
+    }
+    x = PyNativePointer_AsVoidPointer(v);
     if (x == NULL && PyErr_Occurred())
         return -1;
     memcpy(p, (char *)&x, sizeof x);

@@ -9,15 +9,15 @@ typedef struct {
         PyObject_HEAD
         /* TODO: store the type of the pointer + whether it's valid? */
         void* pointer;
-} PyInternalPointerObject;
+} PyNativePointerObject;
 
 /* Methods */
 static int
-pointer_compare(PyInternalPointerObject *a, PyInternalPointerObject *b)
+pointer_compare(void *a, void *b)
 {
-    if (a->pointer == b->pointer)
+    if ((uintptr_t)a == (uintptr_t)b)
         return 0;
-    return a->pointer < b->pointer ? -1 : 1;
+    return (uintptr_t)a < (uintptr_t)b ? -1 : 1;
 }
 
 static PyObject *
@@ -25,42 +25,43 @@ pointer_richcompare(PyObject *self, PyObject *other, int op)
 {
     int result;
     /* XXX: allow comparng against integers? */
-    if (!PyInternalPointer_Check(self) || !PyInternalPointer_Check(other))
+    if (!PyNativePointer_Check(self) || !PyNativePointer_Check(other))
         Py_RETURN_NOTIMPLEMENTED;
     if (self == other)
         result = 0;
     else
-        result = pointer_compare((PyInternalPointerObject*)self, (PyInternalPointerObject*)other);
+        result = pointer_compare(PyNativePointer_AsVoidPointer(self),
+                                 PyNativePointer_AsVoidPointer(other));
     Py_RETURN_RICHCOMPARE(result, 0, op);
 }
 
 static Py_hash_t
 pointer_hash(PyObject *v)
 {
-    assert(PyInternalPointer_Check(v));
-    return _Py_HashPointer(((PyInternalPointerObject *)v)->pointer);
+    assert(PyNativePointer_CheckExact(v));
+    return _Py_HashPointer(((PyNativePointerObject *)v)->pointer);
 }
 
 static int
 pointer_bool(PyObject *v)
 {
-    assert(PyInternalPointer_Check(v));
-    return ((PyInternalPointerObject *)v)->pointer != NULL;
+    assert(PyNativePointer_CheckExact(v));
+    return ((PyNativePointerObject *)v)->pointer != NULL;
 }
 
 static PyObject *
 pointer_int(PyObject *v)
 {
-    assert(PyInternalPointer_Check(v));
-    PyInternalPointerObject *cp = (PyInternalPointerObject *)v;
+    assert(PyNativePointer_CheckExact(v));
+    PyNativePointerObject *cp = (PyNativePointerObject *)v;
     return PyLong_FromPyAddr((Py_addr_t)cp->pointer);
 }
 
 static PyObject *
 pointer_repr(PyObject *v)
 {
-    assert(PyInternalPointer_Check(v));
-    PyInternalPointerObject *cp = (PyInternalPointerObject *)v;
+    assert(PyNativePointer_CheckExact(v));
+    PyNativePointerObject *cp = (PyNativePointerObject *)v;
     /* TODO: print CHERI permissions? */
     return PyUnicode_FromFormat("<C pointer:%p>", cp->pointer);
 }
@@ -69,13 +70,20 @@ pointer_repr(PyObject *v)
 static PyNumberMethods pointer_as_number = {
     .nb_bool = pointer_bool,
     .nb_int = pointer_int,
+    .nb_index = pointer_int,
 };
 
 PyObject *
-PyInternalPointer_FromVoidPointer(void* value)
+PyNativePointer_FromVoidPointer(void* value)
 {
-    PyInternalPointerObject *p;
-    p = PyObject_New(PyInternalPointerObject, &_PyInternalPointer_Type);
+    PyNativePointerObject *p;
+#ifdef __CHERI_PURE_CAPABILITY__
+    if (value && !__builtin_cheri_tag_get(value)) {
+        PyErr_Format(PyExc_TypeError, "a valid pointer or a NULL pointer is required, got %p", __func__, value);
+        return NULL;
+    }
+#endif
+    p = PyObject_New(PyNativePointerObject, &_PyNativePointer_Type);
     if (p == NULL)
         return NULL;
     p->pointer = value;
@@ -83,25 +91,30 @@ PyInternalPointer_FromVoidPointer(void* value)
 }
 
 void *
-PyInternalPointer_AsVoidPointer(PyObject *vv)
+PyNativePointer_AsVoidPointer(PyObject *vv)
 {
-
-    void* pointer = NULL;
-    if (PyInternalPointer_Check(vv)) {
-        return ((PyInternalPointerObject*)vv)->pointer;
+    if (PyNativePointer_CheckExact(vv)) {
+        return ((PyNativePointerObject*)vv)->pointer;
+    } else if (PyNativePointer_IsNull(vv)) {
+        return NULL;
     }
+#ifdef WONT_WORK_ON_CHERI
     Py_addr_t addr = PyLong_AsPyAddr(vv);
     if (addr == (Py_addr_t)-1 && PyErr_Occurred())
         return NULL;
 
     /* Probably not correct since it's not a valid pointer... */
-    return (void*)(uintptr_t)pointer;
+    return (void*)(uintptr_t)addr;
+#else
+    PyErr_Format(PyExc_TypeError, "%s: a valid pointer or a NULL pointer is required, got 0x%lx", __func__, PyLong_AsLong(vv));
+    return NULL;
+#endif
 }
 
 static PyObject *
 pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyInternalPointerObject *self = (PyInternalPointerObject *) type->tp_alloc(type, 0);
+    PyNativePointerObject *self = (PyNativePointerObject *) type->tp_alloc(type, 0);
     if (self != NULL) {
         self->pointer = NULL;
     }
@@ -111,16 +124,16 @@ pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 pointer_dealloc(PyObject *obj)
 {
-    // PyInternalPointerObject *self = (PyInternalPointerObject *)obj;
+    // PyNativePointerObject *self = (PyNativePointerObject *)obj;
     // fprintf(stderr, "releasing c pointer %p\n", self->pointer);
     Py_TYPE(obj)->tp_free(obj);
 }
 
-PyTypeObject _PyInternalPointer_Type = {
+PyTypeObject _PyNativePointer_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "_pointer",
-    .tp_doc = "Internal pointer representationi0",
-    .tp_basicsize = sizeof(PyInternalPointerObject),
+    .tp_name = "_native_pointer",
+    .tp_doc = "native pointer",
+    .tp_basicsize = sizeof(PyNativePointerObject),
     .tp_itemsize = 0,
     .tp_flags = Py_TPFLAGS_DEFAULT, /* TODO: Py_TPFLAGS_LONG_SUBCLASS */
     .tp_richcompare = pointer_richcompare,
