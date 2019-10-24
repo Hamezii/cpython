@@ -59,7 +59,7 @@ struct _dictkeysobject {
        - 8 bytes otherwise (int64_t*)
 
        Dynamically sized, SIZEOF_VOID_P is minimum. */
-    _Alignas(sizeof(void*)) char dk_indices[];  /* char is required to avoid strict aliasing. */
+    char dk_indices[];  /* char is required to avoid strict aliasing. */
 
     /* "PyDictKeyEntry dk_entries[dk_usable];" array follows:
        see the DK_ENTRIES() macro */
