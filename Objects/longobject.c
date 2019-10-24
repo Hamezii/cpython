@@ -1086,10 +1086,10 @@ _PyLong_AsByteArray(PyLongObject* v,
 PyObject *
 PyLong_FromPyAddr(Py_addr_t addr)
 {
-#if SIZEOF_VOID_P <= SIZEOF_LONG
+#if SIZEOF_PY_ADDRESS <= SIZEOF_LONG
     return PyLong_FromLong(addr);
 #else
-#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
+#if SIZEOF_LONG_LONG < SIZEOF_PY_ADDRESS
 #   error "PyLong_FromPyAddr: sizeof(long long) < sizeof(Py_addr_t)"
 #endif
     return PyLong_FromUnsignedLongLong(addr);
