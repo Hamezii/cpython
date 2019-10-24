@@ -51,8 +51,8 @@ PyAPI_FUNC(PyObject *) PyLong_GetInfo(void);
 #define _Py_PARSE_UINTPTR "Pu"
 
 PyAPI_FUNC(double) PyLong_AsDouble(PyObject *);
-PyAPI_FUNC(PyObject *) PyLong_FromVoidPtr(void *);
-PyAPI_FUNC(void *) PyLong_AsVoidPtr(PyObject *);
+Py_DEPRECATED(3.8) PyAPI_FUNC(PyObject *) PyLong_FromVoidPtr(void *);
+Py_DEPRECATED(3.8) PyAPI_FUNC(void *) PyLong_AsVoidPtr(PyObject *);
 
 PyAPI_FUNC(PyObject *) PyLong_FromLongLong(long long);
 PyAPI_FUNC(PyObject *) PyLong_FromUnsignedLongLong(unsigned long long);
@@ -60,6 +60,8 @@ PyAPI_FUNC(long long) PyLong_AsLongLong(PyObject *);
 PyAPI_FUNC(unsigned long long) PyLong_AsUnsignedLongLong(PyObject *);
 PyAPI_FUNC(unsigned long long) PyLong_AsUnsignedLongLongMask(PyObject *);
 PyAPI_FUNC(long long) PyLong_AsLongLongAndOverflow(PyObject *, int *);
+PyAPI_FUNC(PyObject *) PyLong_FromPyAddr(Py_addr_t);
+PyAPI_FUNC(Py_addr_t) PyLong_AsPyAddr(PyObject *);
 
 PyAPI_FUNC(PyObject *) PyLong_FromString(const char *, char **, int);
 
