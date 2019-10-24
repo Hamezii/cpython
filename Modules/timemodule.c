@@ -306,7 +306,8 @@ time_pthread_getcpuclockid(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "k:pthread_getcpuclockid", &thread_id)) {
         return NULL;
     }
-    err = pthread_getcpuclockid((pthread_t)thread_id, &clk_id);
+#warning THIS IS WRONG!
+    err = pthread_getcpuclockid((pthread_t)(uintptr_t)thread_id, &clk_id);
     if (err) {
         errno = err;
         PyErr_SetFromErrno(PyExc_OSError);
