@@ -1233,7 +1233,8 @@ signal_pthread_kill_impl(PyObject *module, unsigned long thread_id,
 {
     int err;
 
-    err = pthread_kill((pthread_t)thread_id, signalnum);
+#warning THIS IS WRONG!
+    err = pthread_kill((pthread_t)(uintptr_t)thread_id, signalnum);
     if (err != 0) {
         errno = err;
         PyErr_SetFromErrno(PyExc_OSError);
