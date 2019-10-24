@@ -65,6 +65,12 @@ typedef struct {
         (!PyTuple_CheckExact(obj) || _PyObject_GC_IS_TRACKED(obj)))
 
 
+#ifdef __CHERI_PURE_CAPABILITY__
+#define _PyGC_CHECK_VALID_PTR(p) assert(__builtin_cheri_tag_get((void*)p))
+#else
+#define _PyGC_CHECK_VALID_PTR(p) (void)0
+#endif
+
 /* Bit flags for _gc_prev */
 /* Bit 0 is set when tp_finalize is called */
 #define _PyGC_PREV_MASK_FINALIZED  (1)
@@ -81,10 +87,10 @@ typedef struct {
 
 // Lowest two bits of _gc_prev is used for _PyGC_PREV_MASK_* flags.
 #define _PyGCHead_PREV(g) ((PyGC_Head*)((g)->_gc_prev & _PyGC_PREV_MASK))
+// FIXME: PROVENANCE ORDER ERROR
 #define _PyGCHead_SET_PREV(g, p) do { \
     assert(((uintptr_t)p & ~_PyGC_PREV_MASK) == 0); \
-    (g)->_gc_prev = ((g)->_gc_prev & ~_PyGC_PREV_MASK) \
-        | ((uintptr_t)(p)); \
+    (g)->_gc_prev = ((uintptr_t)(p)) | ((g)->_gc_prev & ~_PyGC_PREV_MASK); \
     } while (0)
 
 #define _PyGCHead_FINALIZED(g) \
