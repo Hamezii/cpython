@@ -512,6 +512,7 @@ signal_signal_impl(PyObject *module, int signalnum, PyObject *handler)
                          "signal number out of range");
         return NULL;
     }
+
     if (PyCallable_Check(handler)) {
         func = signal_handler;
     } else if (compare_handler(handler, modstate->ignore_handler)) {
@@ -1957,12 +1958,12 @@ _PySignal_Init(int install_signal_handlers)
 {
     signal_state_t *state = &signal_global_state;
 
-    state->default_handler = PyLong_FromVoidPtr((void *)SIG_DFL);
+    state->default_handler = PyLong_FromPyAddr((Py_addr_t)SIG_DFL);
     if (state->default_handler == NULL) {
         return -1;
     }
 
-    state->ignore_handler = PyLong_FromVoidPtr((void *)SIG_IGN);
+    state->ignore_handler = PyLong_FromPyAddr((Py_addr_t)SIG_IGN);
     if (state->ignore_handler == NULL) {
         return -1;
     }
