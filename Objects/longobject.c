@@ -1096,48 +1096,14 @@ PyLong_AsPyAddr(PyObject *vv)
 PyObject *
 PyLong_FromVoidPtr(void *p)
 {
-    return PyInternalPointer_FromVoidPointer(p);
+    return PyNativePointer_FromVoidPointer(p);
 }
 
 /* Get a C pointer from an int object. */
 void *
 PyLong_AsVoidPtr(PyObject *vv)
 {
-#if defined(__CHERI_PURE_CAPABILITY__)
-    fprintf(stderr, "%s is not correct for CHERI!\n", __func__);
-    PyErr_Format(PyExc_ValueError, "%s is not correct for CHERI!\n", __func__);
-    return NULL;
-#else
-#if SIZEOF_VOID_P <= SIZEOF_LONG
-    /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
-    long x;
-
-    if (PyLong_Check(vv) && _PyLong_IsNegative((PyLongObject *)vv)) {
-        x = PyLong_AsLong(vv);
-    }
-    else {
-        x = PyLong_AsUnsignedLong(vv);
-    }
-#else
-
-#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
-#   error "PyLong_AsVoidPtr: sizeof(long long) < sizeof(void*)"
-#endif
-    long long x;
-
-    if (PyLong_Check(vv) && _PyLong_IsNegative((PyLongObject *)vv)) {
-        x = PyLong_AsLongLong(vv);
-    }
-    else {
-        x = PyLong_AsUnsignedLongLong(vv);
-    }
-
-#endif /* SIZEOF_VOID_P <= SIZEOF_LONG */
-
-    if (x == -1 && PyErr_Occurred())
-        return NULL;
-    return (void *)(uintptr_t)x;
-#endif /* !defined(__CHERI_PURE_CAPABILITY__) */
+    return PyNativePointer_AsVoidPointer(vv);
 }
 
 /* Initial long long support by Chris Herborth (chrish@qnx.com), later
