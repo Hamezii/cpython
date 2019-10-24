@@ -84,7 +84,7 @@ gc_clear_collecting(PyGC_Head *g)
 static inline Py_ssize_t
 gc_get_refs(PyGC_Head *g)
 {
-    return (Py_ssize_t)(g->_gc_prev >> _PyGC_PREV_SHIFT);
+    return ((Py_ssize_t)g->_gc_prev) >> _PyGC_PREV_SHIFT;
 }
 
 static inline void
