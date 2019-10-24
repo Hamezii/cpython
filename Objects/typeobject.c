@@ -5624,7 +5624,7 @@ PyType_Ready(PyTypeObject *type)
 static int
 add_subclass(PyTypeObject *base, PyTypeObject *type)
 {
-    PyObject *key = PyLong_FromVoidPtr((void *) type);
+    PyObject *key = PyLong_FromPyAddr((Py_addr_t) type);
     if (key == NULL)
         return -1;
 
@@ -5679,7 +5679,7 @@ remove_subclass(PyTypeObject *base, PyTypeObject *type)
         return;
     }
     assert(PyDict_CheckExact(dict));
-    key = PyLong_FromVoidPtr((void *) type);
+    key = PyLong_FromPyAddr((Py_addr_t) type);
     if (key == NULL || PyDict_DelItem(dict, key)) {
         /* This can happen if the type initialization errored out before
            the base subclasses were updated (e.g. a non-str __qualname__
