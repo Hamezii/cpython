@@ -965,7 +965,7 @@ convertsimple(PyObject *arg, const char **p_format, va_list *p_va, int flags,
         format++;
         if (float_argument_error(arg))
             RETURN_ERR_OCCURRED;
-        ival = PyInternalPointer_AsVoidPointer(arg);
+        ival = PyNativePointer_AsVoidPointer(arg);
         if (ival == NULL && PyErr_Occurred())
             RETURN_ERR_OCCURRED;
         else
