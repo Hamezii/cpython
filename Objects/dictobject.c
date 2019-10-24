@@ -606,6 +606,7 @@ new_keys_object(PyInterpreterState *interp, uint8_t log2_size, bool unicode)
     Py_ssize_t usable;
     int log2_bytes;
     size_t entry_size = unicode ? sizeof(PyDictUnicodeEntry) : sizeof(PyDictKeyEntry);
+    const size_t entry_align = unicode ? _Alignof(PyDictUnicodeEntry) : _Alignof(PyDictKeyEntry);
 
     assert(log2_size >= PyDict_LOG_MINSIZE);
 
@@ -639,7 +640,7 @@ new_keys_object(PyInterpreterState *interp, uint8_t log2_size, bool unicode)
 #endif
     {
         dk = PyObject_Malloc(sizeof(PyDictKeysObject)
-                             + ((size_t)1 << log2_bytes)
+                             + _Py_SIZE_ROUND_UP((size_t)1 << log2_bytes, entry_align)
                              + entry_size * usable);
         if (dk == NULL) {
             PyErr_NoMemory();
@@ -3588,8 +3589,10 @@ _PyDict_KeysSize(PyDictKeysObject *keys)
 {
     size_t es = (keys->dk_kind == DICT_KEYS_GENERAL
                  ? sizeof(PyDictKeyEntry) : sizeof(PyDictUnicodeEntry));
+    const size_t ea = (keys->dk_kind == DICT_KEYS_GENERAL
+                       ? _Alignof(PyDictKeyEntry) : _Alignof(PyDictUnicodeEntry));
     size_t size = sizeof(PyDictKeysObject);
-    size += (size_t)1 << keys->dk_log2_index_bytes;
+    size += _Py_SIZE_ROUND_UP((size_t)1 << keys->dk_log2_index_bytes, ea);
     size += USABLE_FRACTION((size_t)DK_SIZE(keys)) * es;
     return size;
 }
