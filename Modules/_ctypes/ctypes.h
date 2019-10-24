@@ -33,6 +33,7 @@ union value {
                 double d;
                 long long ll;
                 long double D;
+                void * p;
 };
 
 /*
