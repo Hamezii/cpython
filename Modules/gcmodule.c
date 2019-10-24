@@ -606,9 +606,9 @@ move_unreachable(PyGC_Head *young, PyGC_Head *unreachable)
             // But this may pollute the unreachable list head's 'next' pointer
             // too. That's semantically senseless but expedient here - the
             // damage is repaired when this function ends.
-            last->_gc_next = (NEXT_MASK_UNREACHABLE | (uintptr_t)gc);
+            last->_gc_next = ((uintptr_t)gc | NEXT_MASK_UNREACHABLE);
             _PyGCHead_SET_PREV(gc, last);
-            gc->_gc_next = (NEXT_MASK_UNREACHABLE | (uintptr_t)unreachable);
+            gc->_gc_next = ((uintptr_t)unreachable | NEXT_MASK_UNREACHABLE);
             unreachable->_gc_prev = (uintptr_t)gc;
         }
         gc = (PyGC_Head*)prev->_gc_next;
