@@ -91,7 +91,7 @@ PyInternalPointer_AsVoidPointer(PyObject *vv)
         return ((PyInternalPointerObject*)vv)->pointer;
     }
     Py_addr_t addr = PyLong_AsPyAddr(vv);
-    if (addr == -1 && PyErr_Occurred())
+    if (addr == (Py_addr_t)-1 && PyErr_Occurred())
         return NULL;
 
     /* Probably not correct since it's not a valid pointer... */
