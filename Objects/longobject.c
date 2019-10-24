@@ -4,6 +4,7 @@
 
 #include "Python.h"
 #include "longintrepr.h"
+#include "pointerobject.h"
 
 #include <float.h>
 #include <ctype.h>
@@ -1082,64 +1083,50 @@ _PyLong_AsByteArray(PyLongObject* v,
 
 }
 
-/* Create a new int object from a C pointer */
+PyObject *
+PyLong_FromPyAddr(Py_addr_t addr)
+{
+#if SIZEOF_VOID_P <= SIZEOF_LONG
+    return PyLong_FromLong(addr);
+#else
+#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
+#   error "PyLong_FromPyAddr: sizeof(long long) < sizeof(Py_addr_t)"
+#endif
+    return PyLong_FromUnsignedLongLong(addr);
+#endif /* SIZEOF_VOID_P <= SIZEOF_LONG */
+}
 
+Py_addr_t
+PyLong_AsPyAddr(PyObject *vv)
+{
+#if SIZEOF_PY_ADDRESS <= SIZEOF_LONG
+    if (PyLong_Check(vv) && _PyLong_Sign(vv) < 0)
+        return (Py_addr_t)PyLong_AsLong(vv);
+    else
+        return (Py_addr_t)PyLong_AsUnsignedLong(vv);
+#else
+#if SIZEOF_LONG_LONG < SIZEOF_PY_ADDRESS
+#   error "PyLong_AsPyAddr: sizeof(long long) < sizeof(Py_addr_t)"
+#endif
+    if (PyLong_Check(vv) && _PyLong_Sign(vv) < 0)
+        return (Py_addr_t)PyLong_AsLongLong(vv);
+    else
+        return (Py_addr_t)PyLong_AsUnsignedLongLong(vv);
+#endif /* SIZEOF_VOID_P <= SIZEOF_LONG */
+}
+
+/* Create a new int object from a C pointer */
 PyObject *
 PyLong_FromVoidPtr(void *p)
 {
-#ifdef __CHERI_PURE_CAPABILITY__
-    /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
-    fprintf(stderr, "%s is not correct for CHERI!\n", __func__);
-    PyErr_Format(PyExc_ValueError, "%s is not correct for CHERI!\n", __func__);
-    return NULL;
-#elif SIZEOF_VOID_P <= SIZEOF_LONG
-    return PyLong_FromUnsignedLong((unsigned long)(uintptr_t)p);
-#else
-
-#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
-#   error "PyLong_FromVoidPtr: sizeof(long long) < sizeof(void*)"
-#endif
-    return PyLong_FromUnsignedLongLong((unsigned long long)(uintptr_t)p);
-#endif /* SIZEOF_VOID_P <= SIZEOF_LONG */
-
+    return PyInternalPointer_FromVoidPointer(p);
 }
 
 /* Get a C pointer from an int object. */
-
 void *
 PyLong_AsVoidPtr(PyObject *vv)
 {
-#if defined(__CHERI_PURE_CAPABILITY__)
-    fprintf(stderr, "%s is not correct for CHERI!\n", __func__);
-    PyErr_Format(PyExc_ValueError, "%s is not correct for CHERI!\n", __func__);
-    return NULL;
-#else
-#if SIZEOF_VOID_P <= SIZEOF_LONG
-    /* XXXAR: FIXME: need to subclass PyLong and add the extra pointer value */
-    long x;
-
-    if (PyLong_Check(vv) && _PyLong_Sign(vv) < 0)
-        x = PyLong_AsLong(vv);
-    else
-        x = PyLong_AsUnsignedLong(vv);
-#else
-
-#if SIZEOF_LONG_LONG < SIZEOF_VOID_P
-#   error "PyLong_AsVoidPtr: sizeof(long long) < sizeof(void*)"
-#endif
-    long long x;
-
-    if (PyLong_Check(vv) && _PyLong_Sign(vv) < 0)
-        x = PyLong_AsLongLong(vv);
-    else
-        x = PyLong_AsUnsignedLongLong(vv);
-
-#endif /* SIZEOF_VOID_P <= SIZEOF_LONG */
-
-    if (x == -1 && PyErr_Occurred())
-        return NULL;
-    return (void *)(uintptr_t)x;
-#endif /* !defined(__CHERI_PURE_CAPABILITY__) */
+    return PyInternalPointer_AsVoidPointer(vv);
 }
 
 /* Initial long long support by Chris Herborth (chrish@qnx.com), later

@@ -410,6 +410,7 @@ OBJECT_OBJS=	\
 		Objects/object.o \
 		Objects/obmalloc.o \
 		Objects/picklebufobject.o \
+		Objects/pointerobject.o \
 		Objects/rangeobject.o \
 		Objects/setobject.o \
 		Objects/sliceobject.o \
