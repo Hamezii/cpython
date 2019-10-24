@@ -485,13 +485,13 @@ signal_signal_impl(PyObject *module, int signalnum, PyObject *handler)
                          "signal number out of range");
         return NULL;
     }
-    if (handler == IgnoreHandler) {
+    if (handler == IgnoreHandler ||
+        (PyLong_Check(handler) && PyLong_AsPyAddr(handler) == (Py_addr_t)SIG_IGN)) {
         func = SIG_IGN;
-    }
-    else if (handler == DefaultHandler) {
+    } else if (handler == DefaultHandler ||
+        (PyLong_Check(handler) && PyLong_AsPyAddr(handler) == (Py_addr_t)SIG_DFL)) {
         func = SIG_DFL;
-    }
-    else if (!PyCallable_Check(handler)) {
+    } else if (!PyCallable_Check(handler)) {
         _PyErr_SetString(tstate, PyExc_TypeError,
                          "signal handler must be signal.SIG_IGN, "
                          "signal.SIG_DFL, or a callable object");
@@ -1401,6 +1401,8 @@ PyInit__signal(void)
 
     /* Add some symbolic constants to the module */
     d = PyModule_GetDict(m);
+
+    // FIXME: Should SIG_IGN/SIG_DFL be stored as _Py_Zero/_Py_One?
 
     DefaultHandler = PyNativePointer_FromVoidPointer((void *)SIG_DFL);
     if (!DefaultHandler ||
