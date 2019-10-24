@@ -4602,7 +4602,7 @@ tracemalloc_track(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "IOn|i", &domain, &ptr_obj, &size, &release_gil))
         return NULL;
-    ptr = PyLong_AsVoidPtr(ptr_obj);
+    ptr = PyInternalPointer_AsVoidPointer(ptr_obj);
     if (PyErr_Occurred())
         return NULL;
 
@@ -4633,7 +4633,7 @@ tracemalloc_untrack(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "IO", &domain, &ptr_obj))
         return NULL;
-    ptr = PyLong_AsVoidPtr(ptr_obj);
+    ptr = PyInternalPointer_AsVoidPointer(ptr_obj);
     if (PyErr_Occurred())
         return NULL;
 
@@ -4655,7 +4655,7 @@ tracemalloc_get_traceback(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "IO", &domain, &ptr_obj))
         return NULL;
-    ptr = PyLong_AsVoidPtr(ptr_obj);
+    ptr = PyInternalPointer_AsVoidPointer(ptr_obj);
     if (PyErr_Occurred())
         return NULL;
 
