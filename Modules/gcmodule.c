@@ -535,9 +535,9 @@ move_unreachable(PyGC_Head *young, PyGC_Head *unreachable)
             // NEXT_MASK_UNREACHABLE flag, we set it unconditionally.
             // But this may set the flat to unreachable too.
             // move_legacy_finalizers() should care about it.
-            last->_gc_next = (NEXT_MASK_UNREACHABLE | (uintptr_t)gc);
+            last->_gc_next = ((uintptr_t)gc | NEXT_MASK_UNREACHABLE);
             _PyGCHead_SET_PREV(gc, last);
-            gc->_gc_next = (NEXT_MASK_UNREACHABLE | (uintptr_t)unreachable);
+            gc->_gc_next = ((uintptr_t)unreachable | NEXT_MASK_UNREACHABLE);
             unreachable->_gc_prev = (uintptr_t)gc;
         }
         gc = (PyGC_Head*)prev->_gc_next;
