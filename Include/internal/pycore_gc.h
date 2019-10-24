@@ -8,6 +8,12 @@ extern "C" {
 #  error "this header requires Py_BUILD_CORE define"
 #endif
 
+#ifdef __CHERI_PURE_CAPABILITY__
+#define _PyGC_CHECK_VALID_PTR(p) assert(__builtin_cheri_tag_get((void*)p))
+#else
+#define _PyGC_CHECK_VALID_PTR(p) (void)0
+#endif
+
 /* GC information is stored BEFORE the object structure. */
 typedef struct {
     // Pointer to next object in the list.
@@ -71,7 +77,7 @@ static inline PyGC_Head* _PyGCHead_PREV(PyGC_Head *gc) {
 static inline void _PyGCHead_SET_PREV(PyGC_Head *gc, PyGC_Head *prev) {
     uintptr_t uprev = _Py_CAST(uintptr_t, prev);
     assert((uprev & ~_PyGC_PREV_MASK) == 0);
-    gc->_gc_prev = ((gc->_gc_prev & ~_PyGC_PREV_MASK) | uprev);
+    gc->_gc_prev = (uprev | (gc->_gc_prev & ~_PyGC_PREV_MASK));
 }
 
 static inline int _PyGCHead_FINALIZED(PyGC_Head *gc) {
