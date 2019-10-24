@@ -567,12 +567,13 @@ static PyObject *
 CDataType_from_address(PyObject *type, PyObject *value)
 {
     void *buf;
-    if (!PyLong_Check(value)) {
+
+    if (!PyInternalPointer_Check(value)) {
         PyErr_SetString(PyExc_TypeError,
-                        "integer expected");
+            "valid pointer expected");
         return NULL;
     }
-    buf = (void *)PyLong_AsVoidPtr(value);
+    buf = PyInternalPointer_AsVoidPointer(value);
     if (PyErr_Occurred())
         return NULL;
     return PyCData_AtAddress(type, buf);
@@ -715,13 +716,13 @@ CDataType_in_dll(PyObject *type, PyObject *args)
     obj = PyObject_GetAttrString(dll, "_handle");
     if (!obj)
         return NULL;
-    if (!PyLong_Check(obj)) {
+    if (!PyInternalPointer_Check(obj)) {
         PyErr_SetString(PyExc_TypeError,
-                        "the _handle attribute of the second argument must be an integer");
+                        "the _handle attribute of the second argument must be a pointer");
         Py_DECREF(obj);
         return NULL;
     }
-    handle = (void *)PyLong_AsVoidPtr(obj);
+    handle = (void *)PyInternalPointer_AsVoidPointer(obj);
     Py_DECREF(obj);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_ValueError,
@@ -3521,14 +3522,14 @@ PyCFuncPtr_FromDll(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_DECREF(ftuple);
         return NULL;
     }
-    if (!PyLong_Check(obj)) {
+    if (!PyInternalPointer_Check(obj)) {
         PyErr_SetString(PyExc_TypeError,
-                        "the _handle attribute of the second argument must be an integer");
+                        "the _handle attribute of the second argument must be a pointer");
         Py_DECREF(ftuple);
         Py_DECREF(obj);
         return NULL;
     }
-    handle = (void *)PyLong_AsVoidPtr(obj);
+    handle = (void *)PyInternalPointer_AsVoidPointer(obj);
     Py_DECREF(obj);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_ValueError,
@@ -3655,9 +3656,9 @@ PyCFuncPtr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 #endif
 
     if (1 == PyTuple_GET_SIZE(args)
-        && (PyLong_Check(PyTuple_GET_ITEM(args, 0)))) {
+        && (PyInternalPointer_Check(PyTuple_GET_ITEM(args, 0)))) {
         CDataObject *ob;
-        void *ptr = PyLong_AsVoidPtr(PyTuple_GET_ITEM(args, 0));
+        void *ptr = PyInternalPointer_AsVoidPointer(PyTuple_GET_ITEM(args, 0));
         if (ptr == NULL && PyErr_Occurred())
             return NULL;
         ob = (CDataObject *)GenericPyCData_new(type, args, kwds);
@@ -3671,7 +3672,7 @@ PyCFuncPtr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     if (!PyCallable_Check(callable)) {
         PyErr_SetString(PyExc_TypeError,
-                        "argument must be callable or integer function address");
+                        "argument must be callable or function address");
         return NULL;
     }
 

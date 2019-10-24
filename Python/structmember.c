@@ -287,7 +287,7 @@ PyMember_SetOne(char *addr, PyMemberDef *l, PyObject *v)
         break;
         }
     case T_CPOINTER: {
-        void* value = PyLong_AsVoidPtr(v);
+        void* value = PyInternalPointer_AsVoidPointer(v);
         *(void**)addr = value;
         break;
     }

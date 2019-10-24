@@ -787,7 +787,7 @@ _PyCode_ConstantKey(PyObject *op)
     else {
         /* for other types, use the object identifier as a unique identifier
          * to ensure that they are seen as unequal. */
-        PyObject *obj_id = PyLong_FromVoidPtr(op);
+        PyObject *obj_id = PyLong_FromPyAddr((Py_addr_t)op);
         if (obj_id == NULL)
             return NULL;
 

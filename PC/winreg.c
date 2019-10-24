@@ -427,10 +427,10 @@ PyHKEY_AsHKEY(PyObject *ob, HKEY *pHANDLE, BOOL bNoneOK)
         PyHKEYObject *pH = (PyHKEYObject *)ob;
         *pHANDLE = pH->hkey;
     }
-    else if (PyLong_Check(ob)) {
+    else if (PyInternalPointer_Check(ob)) {
         /* We also support integers */
         PyErr_Clear();
-        *pHANDLE = (HKEY)PyLong_AsVoidPtr(ob);
+        *pHANDLE = (HKEY)PyInternalPointer_AsVoidPointer(ob);
         if (PyErr_Occurred())
             return FALSE;
     }
@@ -484,8 +484,8 @@ PyWinObject_CloseHKEY(PyObject *obHandle)
             PyErr_SetFromWindowsErrWithFunction(rc, "RegCloseKey");
     }
 #else
-    else if (PyLong_Check(obHandle)) {
-        long rc = RegCloseKey((HKEY)PyLong_AsVoidPtr(obHandle));
+    else if (PyInternalPointer_Check(obHandle)) {
+        long rc = RegCloseKey((HKEY)PyInternalPointer_AsVoidPointer(obHandle));
         ok = (rc == ERROR_SUCCESS);
         if (!ok)
             PyErr_SetFromWindowsErrWithFunction(rc, "RegCloseKey");
