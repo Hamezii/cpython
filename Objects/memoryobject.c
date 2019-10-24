@@ -1832,7 +1832,7 @@ convert_bool:
 convert_bytes:
     return PyBytes_FromStringAndSize(ptr, 1);
 convert_pointer:
-    return PyLong_FromVoidPtr(p);
+    return PyInternalPointer_FromVoidPointer(p);
 err_format:
     PyErr_Format(PyExc_NotImplementedError,
         "memoryview: format %s not supported", fmt);
@@ -1979,7 +1979,7 @@ pack_single(PyMemoryViewObject *self, char *ptr, PyObject *item, const char *fmt
 
     /* pointer */
     case 'P':
-        p = PyLong_AsVoidPtr(item);
+        p = PyInternalPointer_AsVoidPointer(item);
         if (p == NULL && PyErr_Occurred())
             goto err_occurred;
         CHECK_RELEASED_INT_AGAIN(self);

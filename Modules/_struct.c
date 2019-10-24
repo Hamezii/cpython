@@ -796,8 +796,8 @@ np_void_p(_structmodulestate *state, char *p, PyObject *v, const formatdef *f)
     v = get_pylong(state, v);
     if (v == NULL)
         return -1;
-    assert(PyLong_Check(v));
-    x = PyLong_AsVoidPtr(v);
+    assert(PyInternalPointer_Check(v));
+    x = PyInternalPointer_AsVoidPointer(v);
     Py_DECREF(v);
     if (x == NULL && PyErr_Occurred())
         return -1;
