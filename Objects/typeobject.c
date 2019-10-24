@@ -7584,7 +7584,7 @@ _PyStaticType_InitBuiltin(PyInterpreterState *interp, PyTypeObject *self)
 static int
 add_subclass(PyTypeObject *base, PyTypeObject *type)
 {
-    PyObject *key = PyLong_FromVoidPtr((void *) type);
+    PyObject *key = PyLong_FromPyAddr((Py_addr_t) type);
     if (key == NULL)
         return -1;
 
@@ -7633,7 +7633,7 @@ add_all_subclasses(PyTypeObject *type, PyObject *bases)
 static PyObject *
 get_subclasses_key(PyTypeObject *type, PyTypeObject *base)
 {
-    PyObject *key = PyLong_FromVoidPtr((void *) type);
+    PyObject *key = PyLong_FromPyAddr((Py_addr_t) type);
     if (key != NULL) {
         return key;
     }
@@ -7663,6 +7663,7 @@ remove_subclass(PyTypeObject *base, PyTypeObject *type)
     if (subclasses == NULL) {
         return;
     }
+
     assert(PyDict_CheckExact(subclasses));
 
     PyObject *key = get_subclasses_key(type, base);

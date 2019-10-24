@@ -2051,7 +2051,8 @@ fast_save_enter(PicklerObject *self, PyObject *obj)
                 return 0;
             }
         }
-        key = PyLong_FromVoidPtr(obj);
+        /* Note: only need the address not the pointer here */
+        key = PyLong_FromPyAddr((Py_addr_t)obj);
         if (key == NULL) {
             self->fast_nesting = -1;
             return 0;
@@ -2079,7 +2080,8 @@ static int
 fast_save_leave(PicklerObject *self, PyObject *obj)
 {
     if (self->fast_nesting-- >= FAST_NESTING_LIMIT) {
-        PyObject *key = PyLong_FromVoidPtr(obj);
+        /* Note: only need the address not the pointer here */
+        PyObject *key = PyLong_FromPyAddr((Py_addr_t)obj);
         if (key == NULL)
             return 0;
         if (PyDict_DelItem(self->fast_memo, key) < 0) {
@@ -4868,7 +4870,8 @@ _pickle_PicklerMemoProxy_copy_impl(PicklerMemoProxyObject *self)
             int status;
             PyObject *key, *value;
 
-            key = PyLong_FromVoidPtr(entry.me_key);
+            /* Note: only need the address not the pointer here */
+            key = PyLong_FromPyAddr((Py_addr_t)entry.me_key);
             if (key == NULL) {
                 goto error;
             }
