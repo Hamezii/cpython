@@ -1467,13 +1467,22 @@ P_set(void *ptr, PyObject *value, Py_ssize_t size)
         _RET(value);
     }
 
-    if (!PyNativePointer_Check(value)) {
-        PyErr_SetString(PyExc_TypeError,
-                        "cannot be converted to pointer");
-        return NULL;
-    }
+    // FIXME: allow integer values here?
 
-    v = PyNativePointer_AsVoidPointer(value);
+    if (PyNativePointer_Check(value)) {
+        v = PyNativePointer_AsVoidPointer(value);
+    } else if (PyLong_Check(value)) {
+        /*
+         * Warn when creating pointers from int constants. This will not work
+         * on architectures such as CHERI where pointers and integers are
+         * distinct types.
+         */
+        if (PyErr_WarnEx(PyExc_DeprecationWarning, "Creating native C pointers "
+                         "from integer constants is deprecated.", 1)) {
+            return NULL;
+        }
+        v = (void*)PyNativePointer_AsUIntPtr(value);
+    }
 
     if (PyErr_Occurred())
         return NULL;
@@ -1488,7 +1497,7 @@ P_get(void *ptr, Py_ssize_t size)
     if (*(void **)ptr == NULL) {
         Py_RETURN_NONE;
     }
-    return PyLong_FromVoidPtr(*(void **)ptr);
+    return PyNativePointer_FromVoidPointer(*(void **)ptr);
 }
 
 static struct fielddesc formattable[] = {
