@@ -1804,7 +1804,7 @@ c_void_p_from_param(PyObject *type, PyObject *value)
     }
     /* Should probably allow buffer interface as well */
 /* int, long */
-    if (PyLong_Check(value)) {
+    if (PyLong_Check(value) || PyNativePointer_Check(value)) {
         PyCArgObject *parg;
         struct fielddesc *fd = _ctypes_get_fielddesc("P");
 
@@ -3702,6 +3702,7 @@ PyCFuncPtr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         if (ob == NULL)
             return NULL;
         *(void **)ob->b_ptr = ptr;
+        assert(!PyErr_Occurred());
         return (PyObject *)ob;
     }
 
@@ -3728,6 +3729,7 @@ PyCFuncPtr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 */
+    assert(!PyErr_Occurred());
 
     dict = PyType_stgdict((PyObject *)type);
     /* XXXX Fails if we do: 'PyCFuncPtr(lambda x: x)' */
@@ -3761,6 +3763,7 @@ PyCFuncPtr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_DECREF((PyObject *)self);
         return NULL;
     }
+    assert(!PyErr_Occurred());
     return (PyObject *)self;
 }
 
