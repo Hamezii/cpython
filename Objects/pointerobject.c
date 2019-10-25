@@ -24,7 +24,7 @@ static PyObject *
 pointer_richcompare(PyObject *self, PyObject *other, int op)
 {
     int result;
-    /* XXX: allow comparng against integers? */
+    /* XXX: allow comparing against integers? */
     if (!PyNativePointer_Check(self) || !PyNativePointer_Check(other))
         Py_RETURN_NOTIMPLEMENTED;
     if (self == other)
@@ -63,7 +63,7 @@ pointer_repr(PyObject *v)
     assert(PyNativePointer_CheckExact(v));
     PyNativePointerObject *cp = (PyNativePointerObject *)v;
     /* TODO: print CHERI permissions? */
-    return PyUnicode_FromFormat("<C pointer:%p>", cp->pointer);
+    return PyUnicode_FromFormat("<native pointer:%p>", cp->pointer);
 }
 
 
@@ -72,44 +72,6 @@ static PyNumberMethods pointer_as_number = {
     .nb_int = pointer_int,
     .nb_index = pointer_int,
 };
-
-PyObject *
-PyNativePointer_FromVoidPointer(void* value)
-{
-    PyNativePointerObject *p;
-#ifdef __CHERI_PURE_CAPABILITY__
-    if (value && !__builtin_cheri_tag_get(value)) {
-        PyErr_Format(PyExc_TypeError, "a valid pointer or a NULL pointer is required, got %p", __func__, value);
-        return NULL;
-    }
-#endif
-    p = PyObject_New(PyNativePointerObject, &_PyNativePointer_Type);
-    if (p == NULL)
-        return NULL;
-    p->pointer = value;
-    return (PyObject *)p;
-}
-
-void *
-PyNativePointer_AsVoidPointer(PyObject *vv)
-{
-    if (PyNativePointer_CheckExact(vv)) {
-        return ((PyNativePointerObject*)vv)->pointer;
-    } else if (PyNativePointer_IsNull(vv)) {
-        return NULL;
-    }
-#ifdef WONT_WORK_ON_CHERI
-    Py_addr_t addr = PyLong_AsPyAddr(vv);
-    if (addr == (Py_addr_t)-1 && PyErr_Occurred())
-        return NULL;
-
-    /* Probably not correct since it's not a valid pointer... */
-    return (void*)(uintptr_t)addr;
-#else
-    PyErr_Format(PyExc_TypeError, "%s: a valid pointer or a NULL pointer is required, got 0x%lx", __func__, PyLong_AsLong(vv));
-    return NULL;
-#endif
-}
 
 static PyObject *
 pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -145,3 +107,71 @@ PyTypeObject _PyNativePointer_Type = {
     .tp_alloc = PyType_GenericAlloc,
     .tp_free = PyObject_Del,
 };
+
+static PyNativePointerObject _Py_NativeNullStruct = {
+    PyObject_HEAD_INIT(&_PyNativePointer_Type)
+    .pointer = NULL,
+};
+#define Py_NativeNULL ((PyObject*)(&_Py_NativeNullStruct))
+
+PyObject *
+PyNativePointer_FromVoidPointer(void* value) {
+    PyNativePointerObject *p;
+    /* Return the same instance for all NULL pointers: */
+    if (value == NULL) {
+        Py_INCREF(Py_NativeNULL);
+        return Py_NativeNULL;
+    }
+#ifdef __CHERI_PURE_CAPABILITY__
+    if (!__builtin_cheri_tag_get(value)) {
+        PyErr_Format(PyExc_TypeError, "a valid pointer or a NULL pointer is required, got %p", __func__, value);
+        return NULL;
+    }
+#endif
+    p = PyObject_New(PyNativePointerObject, &_PyNativePointer_Type);
+    if (p == NULL)
+        return NULL;
+    p->pointer = value;
+    return (PyObject *)p;
+}
+
+void *
+PyNativePointer_AsVoidPointer(PyObject *vv)
+{
+    if (PyNativePointer_CheckExact(vv)) {
+        assert(!PyErr_Occurred());
+        return ((PyNativePointerObject*)vv)->pointer;
+    } else if (PyNativePointer_IsNull(vv)) {
+        assert(!PyErr_Occurred());
+        return NULL;
+    }
+#ifdef WONT_WORK_ON_CHERI
+    Py_addr_t addr = PyLong_AsPyAddr(vv);
+    if (addr == (Py_addr_t)-1 && PyErr_Occurred())
+        return NULL;
+
+    /* Probably not correct since it's not a valid pointer... */
+    return (void*)(uintptr_t)addr;
+#else
+    PyErr_Format(PyExc_TypeError, "%s: a valid pointer or a NULL pointer is required, got 0x%lx", __func__, PyLong_AsLong(vv));
+    return NULL;
+#endif
+}
+
+uintptr_t
+PyNativePointer_AsUIntPtr(PyObject *vv)
+{
+    if (PyNativePointer_CheckExact(vv)) {
+        assert(!PyErr_Occurred());
+        return (uintptr_t)((PyNativePointerObject*)vv)->pointer;
+    } else if (PyNativePointer_IsNull(vv)) {
+        assert(!PyErr_Occurred());
+        return (uintptr_t)NULL;
+    }
+    Py_addr_t addr = PyLong_AsPyAddr(vv);
+    if (addr == (Py_addr_t)-1 && PyErr_Occurred())
+        return (uintptr_t)NULL; /* XXX: or -1? */
+
+    return (uintptr_t)addr;
+
+}
