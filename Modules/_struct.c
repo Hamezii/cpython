@@ -516,6 +516,7 @@ nu_void_p(const char *p, const formatdef *f)
 
     assert(_Py_IS_ALIGNED(p, _Alignof(void *)));
     memcpy((char *)&x, p, sizeof x);
+    // FIXME: allow untagged uintptr_t?
     return PyNativePointer_FromVoidPointer(x);
 }
 
@@ -745,12 +746,26 @@ np_void_p(char *p, PyObject *v, const formatdef *f)
     void *x;
 
     assert(_Py_IS_ALIGNED(p, _Alignof(void *)));
-    if (!PyNativePointer_Check(v)) {
+    if (!PyNativePointer_Check(v) && !PyLong_Check(v)) {
       PyErr_SetString(StructError,
           "required argument is not a valid pointer or a NULL pointer");
       return -1;
     }
-    x = PyNativePointer_AsVoidPointer(v);
+#if 1
+    /*
+     * Warn when creating pointers from int constants. This will not work
+     * on architectures such as CHERI where pointers and integers are
+     * distinct types.
+     */
+    if (!PyNativePointer_Check(v)) {
+        if (PyErr_WarnEx(PyExc_DeprecationWarning, "Creating native C pointers "
+                         "from integer constants is deprecated.", 1)) {
+            return -1;
+        }
+    }
+#endif
+    /* Note: we allow both valid pointers and plain long objects here */
+    x = (void*)PyNativePointer_AsUIntPtr(v);
     if (x == NULL && PyErr_Occurred())
         return -1;
     memcpy(p, (char *)&x, sizeof x);
