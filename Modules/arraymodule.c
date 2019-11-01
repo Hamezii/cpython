@@ -1289,7 +1289,7 @@ array_array_buffer_info_impl(arrayobject *self)
     if (!retval)
         return NULL;
 
-    v = PyLong_FromVoidPtr(self->ob_item);
+    v = PyNativePointer_FromVoidPointer(self->ob_item);
     if (v == NULL) {
         Py_DECREF(retval);
         return NULL;
