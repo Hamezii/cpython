@@ -1401,7 +1401,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
                                errmsg);
         return NULL;
     }
-    return PyLong_FromVoidPtr(handle);
+    return PyNativePointer_FromVoidPointer(handle);
 }
 
 static PyObject *py_dl_close(PyObject *self, PyObject *args)
@@ -1433,7 +1433,7 @@ static PyObject *py_dl_sym(PyObject *self, PyObject *args)
                                ctypes_dlerror());
         return NULL;
     }
-    return PyLong_FromVoidPtr(ptr);
+    return PyNativePointer_FromVoidPointer(ptr);
 }
 #endif
 
@@ -1598,7 +1598,7 @@ static PyObject *
 addressof(PyObject *self, PyObject *obj)
 {
     if (CDataObject_Check(obj))
-        return PyLong_FromVoidPtr(((CDataObject *)obj)->b_ptr);
+        return PyNativePointer_FromVoidPointer(((CDataObject *)obj)->b_ptr);
     PyErr_SetString(PyExc_TypeError,
                     "invalid type");
     return NULL;
@@ -1755,7 +1755,7 @@ POINTER(PyObject *self, PyObject *cls)
         PyMem_Free(buf);
         if (result == NULL)
             return result;
-        key = PyLong_FromVoidPtr(result);
+        key = PyNativePointer_FromVoidPointer(result);
         if (key == NULL) {
             Py_DECREF(result);
             return NULL;
