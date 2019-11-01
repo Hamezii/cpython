@@ -22,6 +22,12 @@ pointer_richcompare(PyObject *self, PyObject *other, int op)
     if (self == other)
         Py_RETURN_RICHCOMPARE(0, 0, op);
 
+    /* TODO: ?
+     * Not an integer;  try to use __index__ to convert:
+     * if (PyIndex_Check(v)) {
+     *   v = PyNumber_Index(v);
+     */
+
     /* Allow comparisons against longs with the same value: */
     if (PyNativePointer_Check(self))
         a = (uintptr_t)PyNativePointer_AsVoidPointer(self);
