@@ -5575,7 +5575,8 @@ cast(void *ptr, PyObject *src, PyObject *ctype)
         if (result->b_objects && PyDict_CheckExact(result->b_objects)) {
             PyObject *index;
             int rc;
-            index = PyNativePointer_FromVoidPointer((void *)src);
+            /* We use the address as an index and not the native pointer */
+            index = PyLong_FromPyAddr((Py_addr_t)src);
             if (index == NULL)
                 goto failed;
             rc = PyDict_SetItem(result->b_objects, index, src);
