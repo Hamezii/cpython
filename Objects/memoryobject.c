@@ -1868,7 +1868,15 @@ pack_single(char *ptr, PyObject *item, const char *fmt)
 
     /* pointer */
     case 'P':
-        p = PyNativePointer_AsVoidPointer(item);
+        if (PyNativePointer_Check(item)) {
+            p = PyNativePointer_AsVoidPointer(item);
+        } else {
+            if (PyErr_WarnEx(PyExc_DeprecationWarning, "Creating native C "
+                             "pointers from integer constants is deprecated.", 1)) {
+                goto err_occurred;
+            }
+            p = (void*)PyNativePointer_AsUIntPtr(item);
+        }
         if (p == NULL && PyErr_Occurred())
             goto err_occurred;
         PACK_SINGLE(ptr, p, void *);
