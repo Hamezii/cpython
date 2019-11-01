@@ -12,26 +12,35 @@ typedef struct {
 } PyNativePointerObject;
 
 /* Methods */
-static int
-pointer_compare(void *a, void *b)
-{
-    if ((uintptr_t)a == (uintptr_t)b)
-        return 0;
-    return (uintptr_t)a < (uintptr_t)b ? -1 : 1;
-}
-
 static PyObject *
 pointer_richcompare(PyObject *self, PyObject *other, int op)
 {
     int result;
-    /* XXX: allow comparing against integers? */
-    if (!PyNativePointer_Check(self) || !PyNativePointer_Check(other))
-        Py_RETURN_NOTIMPLEMENTED;
+    uintptr_t a;
+    uintptr_t b;
+
     if (self == other)
+        Py_RETURN_RICHCOMPARE(0, 0, op);
+
+    /* Allow comparisons against longs with the same value: */
+    if (PyNativePointer_Check(self))
+        a = (uintptr_t)PyNativePointer_AsVoidPointer(self);
+    else if (PyLong_Check(self))
+        a = (uintptr_t)PyLong_AsPyAddr(self);
+    else
+        Py_RETURN_NOTIMPLEMENTED;
+
+    if (PyNativePointer_Check(other))
+        b = (uintptr_t)PyNativePointer_AsVoidPointer(other);
+    else if (PyLong_Check(other))
+        b = (uintptr_t)PyLong_AsPyAddr(other);
+    else
+        Py_RETURN_NOTIMPLEMENTED;
+
+    if ((uintptr_t)a == (uintptr_t)b)
         result = 0;
     else
-        result = pointer_compare(PyNativePointer_AsVoidPointer(self),
-                                 PyNativePointer_AsVoidPointer(other));
+        result = a < b ? -1 : 1;
     Py_RETURN_RICHCOMPARE(result, 0, op);
 }
 
