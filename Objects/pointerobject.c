@@ -106,6 +106,19 @@ pointer_dealloc(PyObject *obj)
     Py_TYPE(obj)->tp_free(obj);
 }
 
+static PyObject *
+pointer_reduce(PyObject* self, PyObject *Py_UNUSED(ignored)) {
+    PyErr_Format(PyExc_TypeError, "Attempting to pickle a native pointer (%p). "
+                 "This is a terrible idea and will not work on all systems!");
+    return NULL;
+}
+
+static PyMethodDef pointer_methods[] = {
+    {"__reduce__", (PyCFunction)pointer_reduce, METH_NOARGS,
+        "Should not be called."},
+    {NULL, NULL}  // sentinel
+};
+
 PyTypeObject _PyNativePointer_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "_native_pointer",
@@ -121,6 +134,7 @@ PyTypeObject _PyNativePointer_Type = {
     .tp_as_number = &pointer_as_number,
     .tp_alloc = PyType_GenericAlloc,
     .tp_free = PyObject_Del,
+    .tp_methods = pointer_methods,
 };
 
 static PyNativePointerObject _Py_NativeNullStruct = {
