@@ -139,7 +139,7 @@ PyNativePointer_FromVoidPointer(void* value) {
     }
 #ifdef __CHERI_PURE_CAPABILITY__
     if (!__builtin_cheri_tag_get(value)) {
-        PyErr_Format(PyExc_TypeError, "a valid pointer or a NULL pointer is required, got %p", __func__, value);
+        PyErr_Format(PyExc_TypeError, "%s: a valid pointer or a NULL pointer is required, got %p", __func__, value);
         return NULL;
     }
 #endif
@@ -160,6 +160,19 @@ PyNativePointer_AsVoidPointer(PyObject *vv)
         assert(!PyErr_Occurred());
         return NULL;
     }
+    /* Handle the ctypes.c_void_p type: */
+    if (PyObject_HasAttrString(vv, "value")) {
+      PyObject* pv = PyObject_GetAttrString(vv, "value");
+      if (pv == NULL)
+        return NULL;
+      /* We could also check that _type_ is "P" */
+      if (PyNativePointer_CheckExact(pv)) {
+        void* result = ((PyNativePointerObject*)pv)->pointer;
+        Py_DECREF(pv);
+        return result;
+      }
+      Py_DECREF(pv);
+    }
 #ifdef WONT_WORK_ON_CHERI
     Py_addr_t addr = PyLong_AsPyAddr(vv);
     if (addr == (Py_addr_t)-1 && PyErr_Occurred())
@@ -168,7 +181,7 @@ PyNativePointer_AsVoidPointer(PyObject *vv)
     /* Probably not correct since it's not a valid pointer... */
     return (void*)(uintptr_t)addr;
 #else
-    PyErr_Format(PyExc_TypeError, "%s: a valid pointer or a NULL pointer is required, got 0x%lx", __func__, PyLong_AsLong(vv));
+    PyErr_Format(PyExc_TypeError, "%s: a valid pointer or a NULL pointer is required, got %R", __func__, vv);
     return NULL;
 #endif
 }
