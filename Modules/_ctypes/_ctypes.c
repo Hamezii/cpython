@@ -5595,7 +5595,7 @@ cast(void *ptr, PyObject *src, PyObject *ctype)
         if (result->b_objects && PyDict_CheckExact(result->b_objects)) {
             PyObject *index;
             int rc;
-            index = PyLong_FromVoidPtr((void *)src);
+            index = PyNativePointer_FromVoidPointer((void *)src);
             if (index == NULL)
                 goto failed;
             rc = PyDict_SetItem(result->b_objects, index, src);
@@ -5762,11 +5762,11 @@ _ctypes_add_objects(PyObject *mod)
     MOD_ADD("FUNCFLAG_PYTHONAPI", PyLong_FromLong(FUNCFLAG_PYTHONAPI));
     MOD_ADD("__version__", PyUnicode_FromString("1.1.0"));
 
-    MOD_ADD("_memmove_addr", PyLong_FromVoidPtr(memmove));
-    MOD_ADD("_memset_addr", PyLong_FromVoidPtr(memset));
-    MOD_ADD("_string_at_addr", PyLong_FromVoidPtr(string_at));
-    MOD_ADD("_cast_addr", PyLong_FromVoidPtr(cast));
-    MOD_ADD("_wstring_at_addr", PyLong_FromVoidPtr(wstring_at));
+    MOD_ADD("_memmove_addr", PyNativePointer_FromVoidPointer(memmove));
+    MOD_ADD("_memset_addr", PyNativePointer_FromVoidPointer(memset));
+    MOD_ADD("_string_at_addr", PyNativePointer_FromVoidPointer(string_at));
+    MOD_ADD("_cast_addr", PyNativePointer_FromVoidPointer(cast));
+    MOD_ADD("_wstring_at_addr", PyNativePointer_FromVoidPointer(wstring_at));
 
 /* If RTLD_LOCAL is not defined (Windows!), set it to zero. */
 #if !HAVE_DECL_RTLD_LOCAL
