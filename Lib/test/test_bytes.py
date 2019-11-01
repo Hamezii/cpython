@@ -960,7 +960,7 @@ class BytesTest(BaseBytesTest, unittest.TestCase):
             c_int, c_uint,
             c_long, c_ulong,
             c_size_t, c_ssize_t,
-            c_char_p)
+            c_char_p, c_void_p)
 
         PyBytes_FromFormat = pythonapi.PyBytes_FromFormat
         PyBytes_FromFormat.restype = py_object
@@ -1010,7 +1010,7 @@ class BytesTest(BaseBytesTest, unittest.TestCase):
                 return '%#x' % ptr
 
         ptr = 0xabcdef
-        self.assertEqual(PyBytes_FromFormat(b'ptr=%p', c_char_p(ptr)),
+        self.assertEqual(PyBytes_FromFormat(b'ptr=%p', c_void_p(ptr)),
                          ('ptr=' + ptr_formatter(ptr)).encode('ascii'))
         self.assertEqual(PyBytes_FromFormat(b's=%s', c_char_p(b'cstr')),
                          b's=cstr')
@@ -1026,7 +1026,7 @@ class BytesTest(BaseBytesTest, unittest.TestCase):
             (b'%zd', c_ssize_t, _testcapi.PY_SSIZE_T_MIN, str),
             (b'%zd', c_ssize_t, _testcapi.PY_SSIZE_T_MAX, str),
             (b'%zu', c_size_t, size_max, str),
-            (b'%p', c_char_p, size_max, ptr_formatter),
+            (b'%p', c_void_p, size_max, ptr_formatter),
         ):
             self.assertEqual(PyBytes_FromFormat(formatstr, ctypes_type(value)),
                              py_formatter(value).encode('ascii')),
