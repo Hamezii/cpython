@@ -138,7 +138,7 @@ typedef Py_intptr_t     Py_ssize_t;
 #endif
 
 #if defined(__CHERI_PURE_CAPABILITY__)
-typedef vaddr_t Py_addr_t;
+typedef ptraddr_t Py_addr_t;
 // Address range is defined by __CHERI_ADDRESS_BITS__
 #define SIZEOF_PY_ADDRESS (__CHERI_ADDRESS_BITS__ / 8)
 #else
