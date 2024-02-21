@@ -77,7 +77,7 @@ static inline PyGC_Head* _PyGCHead_PREV(PyGC_Head *gc) {
 static inline void _PyGCHead_SET_PREV(PyGC_Head *gc, PyGC_Head *prev) {
     uintptr_t uprev = _Py_CAST(uintptr_t, prev);
     assert((uprev & ~_PyGC_PREV_MASK) == 0);
-    gc->_gc_prev = (uprev | (gc->_gc_prev & ~_PyGC_PREV_MASK));
+    gc->_gc_prev = (uprev | (Py_addr_t)(gc->_gc_prev & ~_PyGC_PREV_MASK));
 }
 
 static inline int _PyGCHead_FINALIZED(PyGC_Head *gc) {
