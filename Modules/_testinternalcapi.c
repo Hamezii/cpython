@@ -13,6 +13,7 @@
 
 #include "Python.h"
 #include "frameobject.h"
+#include "pointerobject.h"
 #include "interpreteridobject.h" // _PyInterpreterID_LookUp()
 #include "pycore_atomic_funcs.h" // _Py_atomic_int_get()
 #include "pycore_bitutils.h"     // _Py_bswap32()
@@ -888,7 +889,7 @@ write_perf_map_entry(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "OIs", &code_addr_v, &code_size, &entry_name))
         return NULL;
-    code_addr = PyLong_AsVoidPtr(code_addr_v);
+    code_addr = PyNativePointer_AsVoidPointer(code_addr_v);
     if (code_addr == NULL) {
         return NULL;
     }
