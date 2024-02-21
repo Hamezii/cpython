@@ -1,7 +1,7 @@
 /* C pointer type, a subtype of int */
 
 #include "Python.h"
-#include "longintrepr.h"
+#include "cpython/longintrepr.h"
 #include "pointerobject.h"
 
 /* The type object for C pointers.  Note that this cannot be subclassed! */
