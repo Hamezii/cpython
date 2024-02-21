@@ -798,7 +798,7 @@ np_void_p(_structmodulestate *state, char *p, PyObject *v, const formatdef *f)
 
     assert(_Py_IS_ALIGNED(p, _Alignof(void *)));
     if (!PyNativePointer_Check(v) && !PyLong_Check(v)) {
-      PyErr_SetString(StructError,
+      PyErr_SetString(state->StructError,
           "required argument is not a valid pointer or a NULL pointer");
       return -1;
     }
