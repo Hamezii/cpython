@@ -2101,7 +2101,7 @@ static PyTypeObject* static_types[] = {
     &PyWrapperDescr_Type,
     &PyZip_Type,
     &Py_GenericAliasType,
-    &_PyNativePointer_Type
+    &_PyNativePointer_Type,
     &_PyAnextAwaitable_Type,
     &_PyAsyncGenASend_Type,
     &_PyAsyncGenAThrow_Type,
