@@ -906,8 +906,6 @@ convertsimple(PyObject *arg, const char **p_format, va_list *p_va, int flags,
                 arg, msgbuf, bufsize);
         }
         format++;
-        if (float_argument_error(arg))
-            RETURN_ERR_OCCURRED;
         ival = PyNativePointer_AsVoidPointer(arg);
         if (ival == NULL && PyErr_Occurred())
             RETURN_ERR_OCCURRED;
