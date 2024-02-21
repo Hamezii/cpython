@@ -107,7 +107,7 @@ static_builtin_index_set(PyTypeObject *self, size_t index)
 {
     assert(index < _Py_MAX_STATIC_BUILTIN_TYPES);
     /* We store a 1-based index so 0 can mean "not initialized". */
-    self->tp_subclasses = (PyObject *)(index + 1);
+    self->tp_subclasses = (PyObject *)(uintptr_t)(index + 1);
 }
 
 static inline void
