@@ -12,7 +12,11 @@
 */
 
 #define DEFAULT_BLOCK_SIZE 8192
+#if SIZEOF_VOID_P > 8
+#define ALIGNMENT               SIZEOF_VOID_P
+#else
 #define ALIGNMENT               8
+#endif
 
 typedef struct _block {
     /* Total number of bytes owned by this block available to pass out.
