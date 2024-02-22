@@ -137,11 +137,11 @@ static inline void* _DK_ENTRIES(PyDictKeysObject *dk) {
 }
 static inline PyDictKeyEntry* DK_ENTRIES(PyDictKeysObject *dk) {
     assert(dk->dk_kind == DICT_KEYS_GENERAL);
-    return (PyDictKeyEntry*)_DK_ENTRIES(dk);
+    return (PyDictKeyEntry*)_Py_ALIGN_UP(_DK_ENTRIES(dk), _Alignof(PyDictKeyEntry));
 }
 static inline PyDictUnicodeEntry* DK_UNICODE_ENTRIES(PyDictKeysObject *dk) {
     assert(dk->dk_kind != DICT_KEYS_GENERAL);
-    return (PyDictUnicodeEntry*)_DK_ENTRIES(dk);
+    return (PyDictUnicodeEntry*)_Py_ALIGN_UP(_DK_ENTRIES(dk), _Alignof(PyDictUnicodeEntry));
 }
 
 #define DK_IS_UNICODE(dk) ((dk)->dk_kind != DICT_KEYS_GENERAL)
