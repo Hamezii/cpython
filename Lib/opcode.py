@@ -469,7 +469,10 @@ _cache_format = {
         "counter": 1,
         "version": 2,
         "keys_version": 2,
-        "descr": 4,
+        # XXX-AM: This is hacky, should have a better way to produce the
+        # _cache_format data. Note that this value is in code units, so
+        # it is actually 2 times a capability width.
+        "descr": 4 if __cheri_cap_size__ == 0 else __cheri_cap_size__,
     },
     "STORE_ATTR": {
         "counter": 1,

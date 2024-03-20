@@ -2412,7 +2412,7 @@
 
         TARGET(LOAD_ATTR) {
             PREDICTED(LOAD_ATTR);
-            static_assert(INLINE_CACHE_ENTRIES_LOAD_ATTR == 9, "incorrect cache size");
+            static_assert(INLINE_CACHE_ENTRIES_LOAD_ATTR == 21, "incorrect cache size");
             PyObject *owner = stack_pointer[-1];
             PyObject *res2 = NULL;
             PyObject *res;
@@ -2470,7 +2470,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -2498,7 +2498,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -2526,7 +2526,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -2568,7 +2568,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -2593,7 +2593,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -2620,7 +2620,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -3615,7 +3615,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -3639,7 +3639,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 
@@ -3667,7 +3667,7 @@
             STACK_GROW(((oparg & 1) ? 1 : 0));
             stack_pointer[-1] = res;
             if (oparg & 1) { stack_pointer[-(1 + ((oparg & 1) ? 1 : 0))] = res2; }
-            next_instr += 9;
+            next_instr += 21;
             DISPATCH();
         }
 

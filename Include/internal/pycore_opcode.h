@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 #include "opcode.h"
+#include "pycore_code.h"
 
 extern const uint32_t _PyOpcode_Jump[9];
 
@@ -32,18 +33,18 @@ const uint32_t _PyOpcode_Jump[9] = {
 };
 
 const uint8_t _PyOpcode_Caches[256] = {
-    [BINARY_SUBSCR] = 1,
-    [STORE_SUBSCR] = 1,
-    [UNPACK_SEQUENCE] = 1,
-    [FOR_ITER] = 1,
-    [STORE_ATTR] = 4,
-    [LOAD_ATTR] = 9,
-    [COMPARE_OP] = 1,
-    [LOAD_GLOBAL] = 4,
-    [BINARY_OP] = 1,
-    [SEND] = 1,
-    [LOAD_SUPER_ATTR] = 1,
-    [CALL] = 3,
+    [BINARY_SUBSCR] = INLINE_CACHE_ENTRIES_BINARY_SUBSCR,
+    [STORE_SUBSCR] = INLINE_CACHE_ENTRIES_STORE_SUBSCR,
+    [UNPACK_SEQUENCE] = INLINE_CACHE_ENTRIES_UNPACK_SEQUENCE,
+    [FOR_ITER] = INLINE_CACHE_ENTRIES_FOR_ITER,
+    [STORE_ATTR] = INLINE_CACHE_ENTRIES_STORE_ATTR,
+    [LOAD_ATTR] = INLINE_CACHE_ENTRIES_LOAD_ATTR,
+    [COMPARE_OP] = INLINE_CACHE_ENTRIES_COMPARE_OP,
+    [LOAD_GLOBAL] = INLINE_CACHE_ENTRIES_LOAD_GLOBAL,
+    [BINARY_OP] = INLINE_CACHE_ENTRIES_BINARY_OP,
+    [SEND] = INLINE_CACHE_ENTRIES_SEND,
+    [LOAD_SUPER_ATTR] = INLINE_CACHE_ENTRIES_LOAD_SUPER_ATTR,
+    [CALL] = INLINE_CACHE_ENTRIES_CALL,
 };
 
 const uint8_t _PyOpcode_Deopt[256] = {

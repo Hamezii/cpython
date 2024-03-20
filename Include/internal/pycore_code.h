@@ -4,6 +4,10 @@
 extern "C" {
 #endif
 
+#ifdef __CHERI_PURE_CAPABILITY__
+#include <cheri/cheric.h>
+#endif
+
 #define CODE_MAX_WATCHERS 8
 
 /* PEP 659
@@ -67,9 +71,32 @@ typedef struct {
     uint16_t counter;
     uint16_t type_version[2];
     uint16_t keys_version[2];
+#ifdef __CHERI_PURE_CAPABILITY__
+    /**
+     * XXX-AM: This is used to store a PyObject pointer. We have two options:
+     * 1) expand it to store a capability; this makes the opcode larger and
+     *   requires alignment constraints, which are not easy to enforce at this
+     *   point.
+     * 2) leave the field as an integer address and re-construct the capability
+     *   somehow. This seems more of an option if we determine that the overhead
+     *   of capabilities here is too taxing and we decide to use an hybridized
+     *   approach.
+     * Take option (1) and just double the space so that we can always find an
+     * aligned boundary within it.
+     *
+     * Note that the size of this field must be arch-independent, because we
+     * rely on it in Lib/opcode.py
+     */
+    uint16_t descr[8 * 2];
+#else
     uint16_t descr[4];
+#endif
 } _PyLoadMethodCache;
 
+static_assert(_Alignof(void *) <= 16,
+              "_PyLoadMethodCache descriptor can not be pointer-aligned");
+static_assert(SIZEOF_VOID_P <= 16,
+              "_PyLoadMethodCache descriptor is smaller than pointer size");
 
 // MUST be the max(_PyAttrCache, _PyLoadMethodCache)
 #define INLINE_CACHE_ENTRIES_LOAD_ATTR CACHE_ENTRIES(_PyLoadMethodCache)
@@ -304,6 +331,12 @@ write_u64(uint16_t *p, uint64_t val)
 static inline void
 write_obj(uint16_t *p, PyObject *val)
 {
+#ifdef __CHERI_PURE_CAPABILITY__
+    p = cheri_setbounds(p, 2 * sizeof(void *));
+#endif
+    if (!_Py_IS_ALIGNED(p, _Alignof(void *))) {
+        p = _Py_ALIGN_UP(p, _Alignof(void *));
+    }
     memcpy(p, &val, sizeof(val));
 }
 
@@ -333,6 +366,14 @@ static inline PyObject *
 read_obj(uint16_t *p)
 {
     PyObject *val;
+
+#ifdef __CHERI_PURE_CAPABILITY__
+    p = cheri_setbounds(p, 2 * sizeof(void *));
+#endif
+
+    if (!_Py_IS_ALIGNED(p, _Alignof(void *))) {
+        p = _Py_ALIGN_UP(p, _Alignof(void *));
+    }
     memcpy(&val, p, sizeof(val));
     return val;
 }

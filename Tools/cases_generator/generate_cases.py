@@ -33,7 +33,6 @@ RE_PREDICTED = (
 )
 UNUSED = "unused"
 BITS_PER_CODE_UNIT = 16
-CACHE_EFFECT_PTR_CODE_UNITS = 4
 
 arg_parser = argparse.ArgumentParser(
     description="Generate the code for the interpreter switch.",
@@ -47,6 +46,9 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "-l", "--emit-line-directives", help="Emit #line directives", action="store_true"
+)
+arg_parser.add_argument(
+    "--cheri-bits", help="CHERI capability bits", type=int,
 )
 arg_parser.add_argument(
     "input", nargs=argparse.REMAINDER, help="Instruction definition file(s)"
@@ -246,12 +248,14 @@ class Instruction:
     output_effects: list[StackEffect]
     unmoved_names: frozenset[str]
     instr_fmt: str
+    ptr_size: int
 
     # Set later
     family: parser.Family | None = None
     predicted: bool = False
 
-    def __init__(self, inst: parser.InstDef):
+    def __init__(self, inst: parser.InstDef, ptr_size: int):
+        self.ptr_size = ptr_size
         self.inst = inst
         self.kind = inst.kind
         self.name = inst.name
@@ -262,7 +266,7 @@ class Instruction:
         self.cache_effects = [
             effect for effect in inst.inputs if isinstance(effect, parser.CacheEffect)
         ]
-        self.cache_offset = sum(c.size if not c.is_pointer else CACHE_EFFECT_PTR_CODE_UNITS for c in self.cache_effects)
+        self.cache_offset = sum(c.size if not c.is_pointer else self.ptr_size for c in self.cache_effects)
         self.input_effects = [
             effect for effect in inst.inputs if isinstance(effect, StackEffect)
         ]
@@ -280,7 +284,7 @@ class Instruction:
             fmt = "IX"
         cache = "C"
         for ce in self.cache_effects:
-            ce_size = CACHE_EFFECT_PTR_CODE_UNITS if ce.is_pointer else ce.size
+            ce_size = self.ptr_size if ce.is_pointer else ce.size
             for _ in range(ce_size):
                 fmt += cache
                 cache = "0"
@@ -369,12 +373,11 @@ class Instruction:
         # Write cache effect variable declarations and initializations
         cache_offset = cache_adjust
         for ceffect in self.cache_effects:
-            ceffect_size = ceffect.size
+            ceffect_size = self.ptr_size if ceffect.is_pointer else ceffect.size
             if ceffect.name != UNUSED:
                 if ceffect.is_pointer:
                     typ = "PyObject *"
                     func = "read_obj"
-                    ceffect_size = CACHE_EFFECT_PTR_CODE_UNITS
                 else:
                     bits = ceffect.size * BITS_PER_CODE_UNIT
                     typ = f"uint{bits}_t "
@@ -506,14 +509,16 @@ class Analyzer:
     input_filenames: list[str]
     output_filename: str
     metadata_filename: str
+    ptr_size: int
     errors: int = 0
     emit_line_directives: bool = False
 
-    def __init__(self, input_filenames: list[str], output_filename: str, metadata_filename: str):
+    def __init__(self, input_filenames: list[str], output_filename: str, metadata_filename: str, ptr_size: int):
         """Read the input file."""
         self.input_filenames = input_filenames
         self.output_filename = output_filename
         self.metadata_filename = metadata_filename
+        self.ptr_size = ptr_size
 
     def error(self, msg: str, node: parser.Node) -> None:
         lineno = 0
@@ -612,7 +617,7 @@ class Analyzer:
                             "an override but no previous definition exists.",
                             thing_first_token,
                         )
-                    self.instrs[name] = Instruction(thing)
+                    self.instrs[name] = Instruction(thing, self.ptr_size)
                     instrs_idx[name] = len(self.everything)
                     self.everything.append(thing)
                 case parser.Super(name):
@@ -1244,7 +1249,13 @@ def main():
     args = arg_parser.parse_args()  # Prints message and sys.exit(2) on error
     if len(args.input) == 0:
         args.input.append(DEFAULT_INPUT)
-    a = Analyzer(args.input, args.output, args.metadata)  # Raises OSError if input unreadable
+    if args.cheri_bits:
+        # Ensure that this is in sync with Includes/internal/pycore_code.h and Lib/opcode.py
+        # Use 2 * pointer width because of alignment, the size is in code units
+        cache_effect_ptr_size = int(2 * args.cheri_bits / BITS_PER_CODE_UNIT)
+    else:
+        cache_effect_ptr_size = 4
+    a = Analyzer(args.input, args.output, args.metadata, cache_effect_ptr_size)  # Raises OSError if input unreadable
     if args.emit_line_directives:
         a.emit_line_directives = True
     a.parse()  # Raises SyntaxError on failure

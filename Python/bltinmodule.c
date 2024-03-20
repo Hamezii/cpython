@@ -3087,7 +3087,7 @@ static struct PyModuleDef builtinsmodule = {
 PyObject *
 _PyBuiltin_Init(PyInterpreterState *interp)
 {
-    PyObject *mod, *dict, *debug;
+    PyObject *mod, *dict, *debug, *cheri;
 
     const PyConfig *config = _PyInterpreterState_GetConfig(interp);
 
@@ -3150,6 +3150,17 @@ _PyBuiltin_Init(PyInterpreterState *interp)
         return NULL;
     }
     Py_DECREF(debug);
+#ifdef __CHERI_PURE_CAPABILITY__
+    // XXX use config->cheri_bits?
+    cheri = PyLong_FromLong(__SIZEOF_CHERI_CAPABILITY__);
+#else
+    cheri = PyLong_FromLong(0);
+#endif
+    if (PyDict_SetItemString(dict, "__cheri_cap_size__", cheri) < 0) {
+        Py_DECREF(cheri);
+        return NULL;
+    }
+    Py_DECREF(cheri);
 
     return mod;
 #undef ADD_TO_ALL
