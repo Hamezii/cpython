@@ -84,7 +84,8 @@ class Expression(Node):
 @dataclass
 class CacheEffect(Node):
     name: str
-    size: int
+    size: int|None
+    is_pointer: bool = False
 
 
 @dataclass
@@ -229,13 +230,25 @@ class Parser(PLexer):
         # IDENTIFIER '/' NUMBER
         if tkn := self.expect(lx.IDENTIFIER):
             if self.expect(lx.DIVIDE):
-                num = self.require(lx.NUMBER).text
-                try:
-                    size = int(num)
-                except ValueError:
-                    raise self.make_syntax_error(f"Expected integer, got {num!r}")
+                if size_tkn := self.expect(lx.NUMBER):
+                    num = size_tkn.text
+                    try:
+                        size = int(num)
+                    except ValueError:
+                        raise self.make_syntax_error(f"Expected integer, got {num!r}")
+                    else:
+                        return CacheEffect(tkn.text, size)
                 else:
-                    return CacheEffect(tkn.text, size)
+                    # XXX-AM Abusing lx.IDENTIFIER is hacky, this may be upstreamable
+                    # if done correctly.
+                    size_id = self.require(lx.IDENTIFIER).text
+                    match size_id:
+                        case 'P':
+                            return CacheEffect(tkn.text, None, is_pointer=True)
+                        case _:
+                            raise self.make_syntax_error(f"Expected size identifier (P), got {size_id!r}")
+
+
 
     @contextual
     def stack_effect(self) -> StackEffect | None:

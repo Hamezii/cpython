@@ -1872,7 +1872,7 @@ dummy_func(
             DECREF_INPUTS();
         }
 
-        inst(LOAD_ATTR_CLASS, (unused/1, type_version/2, unused/2, descr/4, cls -- res2 if (oparg & 1), res)) {
+        inst(LOAD_ATTR_CLASS, (unused/1, type_version/2, unused/2, descr/P, cls -- res2 if (oparg & 1), res)) {
 
             DEOPT_IF(!PyType_Check(cls), LOAD_ATTR);
             DEOPT_IF(((PyTypeObject *)cls)->tp_version_tag != type_version,
@@ -1887,7 +1887,7 @@ dummy_func(
             DECREF_INPUTS();
         }
 
-        inst(LOAD_ATTR_PROPERTY, (unused/1, type_version/2, func_version/2, fget/4, owner -- unused if (oparg & 1), unused)) {
+        inst(LOAD_ATTR_PROPERTY, (unused/1, type_version/2, func_version/2, fget/P, owner -- unused if (oparg & 1), unused)) {
             DEOPT_IF(tstate->interp->eval_frame, LOAD_ATTR);
 
             PyTypeObject *cls = Py_TYPE(owner);
@@ -1913,7 +1913,7 @@ dummy_func(
             DISPATCH_INLINED(new_frame);
         }
 
-        inst(LOAD_ATTR_GETATTRIBUTE_OVERRIDDEN, (unused/1, type_version/2, func_version/2, getattribute/4, owner -- unused if (oparg & 1), unused)) {
+        inst(LOAD_ATTR_GETATTRIBUTE_OVERRIDDEN, (unused/1, type_version/2, func_version/2, getattribute/P, owner -- unused if (oparg & 1), unused)) {
             DEOPT_IF(tstate->interp->eval_frame, LOAD_ATTR);
             PyTypeObject *cls = Py_TYPE(owner);
             DEOPT_IF(cls->tp_version_tag != type_version, LOAD_ATTR);
@@ -2551,7 +2551,7 @@ dummy_func(
             exc_info->exc_value = Py_NewRef(new_exc);
         }
 
-        inst(LOAD_ATTR_METHOD_WITH_VALUES, (unused/1, type_version/2, keys_version/2, descr/4, self -- res2 if (oparg & 1), res)) {
+        inst(LOAD_ATTR_METHOD_WITH_VALUES, (unused/1, type_version/2, keys_version/2, descr/P, self -- res2 if (oparg & 1), res)) {
             /* Cached method object */
             PyTypeObject *self_cls = Py_TYPE(self);
             assert(type_version != 0);
@@ -2570,7 +2570,7 @@ dummy_func(
             assert(oparg & 1);
         }
 
-        inst(LOAD_ATTR_METHOD_NO_DICT, (unused/1, type_version/2, unused/2, descr/4, self -- res2 if (oparg & 1), res)) {
+        inst(LOAD_ATTR_METHOD_NO_DICT, (unused/1, type_version/2, unused/2, descr/P, self -- res2 if (oparg & 1), res)) {
             PyTypeObject *self_cls = Py_TYPE(self);
             DEOPT_IF(self_cls->tp_version_tag != type_version, LOAD_ATTR);
             assert(self_cls->tp_dictoffset == 0);
@@ -2582,7 +2582,7 @@ dummy_func(
             assert(oparg & 1);
         }
 
-        inst(LOAD_ATTR_METHOD_LAZY_DICT, (unused/1, type_version/2, unused/2, descr/4, self -- res2 if (oparg & 1), res)) {
+        inst(LOAD_ATTR_METHOD_LAZY_DICT, (unused/1, type_version/2, unused/2, descr/P, self -- res2 if (oparg & 1), res)) {
             PyTypeObject *self_cls = Py_TYPE(self);
             DEOPT_IF(self_cls->tp_version_tag != type_version, LOAD_ATTR);
             Py_ssize_t dictoffset = self_cls->tp_dictoffset;

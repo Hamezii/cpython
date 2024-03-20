@@ -33,6 +33,7 @@ RE_PREDICTED = (
 )
 UNUSED = "unused"
 BITS_PER_CODE_UNIT = 16
+CACHE_EFFECT_PTR_CODE_UNITS = 4
 
 arg_parser = argparse.ArgumentParser(
     description="Generate the code for the interpreter switch.",
@@ -261,7 +262,7 @@ class Instruction:
         self.cache_effects = [
             effect for effect in inst.inputs if isinstance(effect, parser.CacheEffect)
         ]
-        self.cache_offset = sum(c.size for c in self.cache_effects)
+        self.cache_offset = sum(c.size if not c.is_pointer else CACHE_EFFECT_PTR_CODE_UNITS for c in self.cache_effects)
         self.input_effects = [
             effect for effect in inst.inputs if isinstance(effect, StackEffect)
         ]
@@ -279,7 +280,8 @@ class Instruction:
             fmt = "IX"
         cache = "C"
         for ce in self.cache_effects:
-            for _ in range(ce.size):
+            ce_size = CACHE_EFFECT_PTR_CODE_UNITS if ce.is_pointer else ce.size
+            for _ in range(ce_size):
                 fmt += cache
                 cache = "0"
         self.instr_fmt = fmt
@@ -367,22 +369,20 @@ class Instruction:
         # Write cache effect variable declarations and initializations
         cache_offset = cache_adjust
         for ceffect in self.cache_effects:
+            ceffect_size = ceffect.size
             if ceffect.name != UNUSED:
-                bits = ceffect.size * BITS_PER_CODE_UNIT
-                if bits == 64:
-                    # NOTE: We assume that 64-bit data in the cache
-                    # is always an object pointer.
-                    # If this becomes false, we need a way to specify
-                    # syntactically what type the cache data is.
+                if ceffect.is_pointer:
                     typ = "PyObject *"
                     func = "read_obj"
+                    ceffect_size = CACHE_EFFECT_PTR_CODE_UNITS
                 else:
+                    bits = ceffect.size * BITS_PER_CODE_UNIT
                     typ = f"uint{bits}_t "
                     func = f"read_u{bits}"
                 out.emit(
                     f"{typ}{ceffect.name} = {func}(&next_instr[{cache_offset}].cache);"
                 )
-            cache_offset += ceffect.size
+            cache_offset += ceffect_size
         assert cache_offset == self.cache_offset + cache_adjust
 
         # Write the body, substituting a goto for ERROR_IF() and other stuff
