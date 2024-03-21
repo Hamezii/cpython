@@ -338,6 +338,8 @@ typedef struct Bigint Bigint;
 #define private_mem interp->dtoa.preallocated
 #define pmem_next interp->dtoa.preallocated_next
 
+#define BALLOC_PMEM_ALIGN(x) _Py_ALIGN_UP((x), Py_MAX(sizeof(double), sizeof(Bigint *)))
+
 /* Allocate space for a Bigint with up to 1<<k digits */
 
 static Bigint *
@@ -358,7 +360,7 @@ Balloc(int k)
             pmem_next - private_mem + len <= (Py_ssize_t)Bigint_PREALLOC_SIZE
         ) {
             rv = (Bigint*)pmem_next;
-            pmem_next += len;
+            pmem_next = BALLOC_PMEM_ALIGN(pmem_next + len);
         }
         else {
             rv = (Bigint*)MALLOC(len*sizeof(double));
