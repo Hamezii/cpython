@@ -2811,6 +2811,7 @@ PyDoc_STR(
 Static objects:\n\
 \n\
 builtin_module_names -- tuple of module names built into this interpreter\n\
+cheri_platform -- CHERI capability platform identifier\n\
 copyright -- copyright notice pertaining to this interpreter\n\
 exec_prefix -- prefix used to find the machine-specific Python library\n\
 executable -- absolute path of the executable binary of the Python interpreter\n\
@@ -3272,6 +3273,7 @@ _PySys_InitCore(PyThreadState *tstate, PyObject *sysdict)
     SET_SYS("api_version", PyLong_FromLong(PYTHON_API_VERSION));
     SET_SYS_FROM_STRING("copyright", Py_GetCopyright());
     SET_SYS_FROM_STRING("platform", Py_GetPlatform());
+    SET_SYS_FROM_STRING("cheri_platform", Py_GetCheriPlatform());
     SET_SYS("maxsize", PyLong_FromSsize_t(PY_SSIZE_T_MAX));
     SET_SYS("float_info", PyFloat_GetInfo());
     SET_SYS("int_info", PyLong_GetInfo());
