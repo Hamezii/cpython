@@ -229,7 +229,7 @@ class BaseTest:
         bi = a.buffer_info()
         self.assertIsInstance(bi, tuple)
         self.assertEqual(len(bi), 2)
-        self.assertIsInstance(bi[0], int)
+        self.assertIsInstance(bi[0], nativepointer)
         self.assertIsInstance(bi[1], int)
         self.assertEqual(bi[1], len(a))
 
