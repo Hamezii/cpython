@@ -313,9 +313,12 @@ vgetargs1_impl(PyObject *compat_args, PyObject *const *stack, Py_ssize_t nargs, 
             break;
         default:
             if (level == 0) {
-                if (Py_ISALPHA(c))
+                if (Py_ISALPHA(c)) {
+                    if (c == 'P') /* Assume that the next char will be s|u|v */
+                        format++;
                     if (c != 'e') /* skip encoded */
                         max++;
+                }
             }
             break;
         }
@@ -897,7 +900,9 @@ convertsimple(PyObject *arg, const char **p_format, va_list *p_va, int flags,
     case 'P': {/* pointer (as void*,inptr_t or uintptr_t) */
         void **p = va_arg(*p_va, void**);
         void *ival;
-        /* Must pass the voidptr/signed/unsigned flag, too. */
+        /*
+         * Must pass the voidptr/signed/unsigned flag, too.
+         */
         if (!(*format == 's' || *format == 'u' || *format == 'v')) {
             return converterr(
                 /* XXX: test_getargs2.py expects the impossible message */
@@ -905,8 +910,11 @@ convertsimple(PyObject *arg, const char **p_format, va_list *p_va, int flags,
                 "(impossible<bad format char>)",
                 arg, msgbuf, bufsize);
         }
+        if (*format == 'v')
+            ival = PyNativePointer_AsVoidPointer(arg);
+        else
+            ival = PyNativePointer_AsUIntPtr(arg);
         format++;
-        ival = PyNativePointer_AsVoidPointer(arg);
         if (ival == NULL && PyErr_Occurred())
             RETURN_ERR_OCCURRED;
         else
