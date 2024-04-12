@@ -53,7 +53,7 @@
  * Format codes
  */
 
-#define F_POINTER "Pv"
+#define F_POINTER "Pu"
 #define T_POINTER T_CPOINTER
 
 #ifdef MS_WINDOWS
