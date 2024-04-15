@@ -5,6 +5,9 @@
 typedef struct {
     PyObject_VAR_HEAD
     Py_DEPRECATED(3.11) Py_hash_t ob_shash;
+#ifdef __CHERI_PURE_CAPABILITY__
+    _Alignas(void *)
+#endif
     char ob_sval[1];
 
     /* Invariants:
@@ -72,6 +75,9 @@ typedef struct {
 
     /* Stack buffer */
     int use_small_buffer;
+#ifdef __CHERI_PURE_CAPABILITY__
+    _Alignas(void *)
+#endif
     char small_buffer[512];
 } _PyBytesWriter;
 
