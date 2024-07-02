@@ -913,7 +913,7 @@ convertsimple(PyObject *arg, const char **p_format, va_list *p_va, int flags,
         if (*format == 'v')
             ival = PyNativePointer_AsVoidPointer(arg);
         else
-            ival = PyNativePointer_AsUIntPtr(arg);
+            ival = (void *)PyNativePointer_AsUIntPtr(arg);
         format++;
         if (ival == NULL && PyErr_Occurred())
             RETURN_ERR_OCCURRED;

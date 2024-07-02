@@ -24,6 +24,6 @@ Py_GetCheriPlatform(void) {
     #error "Unknown CHERI platform"
 #endif
 #else
-    return "nocheri"
+    return "nocheri";
 #endif
 }
