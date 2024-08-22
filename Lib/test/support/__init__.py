@@ -815,9 +815,9 @@ def calcobjsize(fmt):
     import struct
     return struct.calcsize(_header + fmt + _align)
 
-def calcvobjsize(fmt):
+def calcvobjsize(fmt, fmt_items=''):
     import struct
-    return struct.calcsize(_vheader + fmt + _align)
+    return struct.calcsize(_vheader + fmt + _align + fmt_items)
 
 
 _TPFLAGS_HAVE_GC = 1<<14
