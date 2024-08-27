@@ -803,13 +803,13 @@ def check_cflags_pgo():
         pgo_options.append(PGO_PROF_USE_FLAG)
     return any(option in cflags_nodist for option in pgo_options)
 
-
-_header = 'nP'
-_align = '0n'
+# For Cheri, objects must be aligned to pointer size, which
+# is 16 bytes.
+_align = '0P'
+_header = 'nP' + _align
 if hasattr(sys, "getobjects"):
     _header = '2P' + _header
-    _align = '0P'
-_vheader = _header + 'n'
+_vheader = _header + 'n' + _align
 
 def calcobjsize(fmt):
     import struct
