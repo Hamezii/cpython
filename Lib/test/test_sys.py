@@ -1337,9 +1337,9 @@ class SizeofTest(unittest.TestCase):
         vsize = test.support.calcvobjsize
         gc_header_size = self.gc_headsize
         # bool objects are not gc tracked
-        self.assertEqual(sys.getsizeof(True), vsize('') + self.longdigit)
+        self.assertEqual(sys.getsizeof(True), vsize('', '') + self.longdigit)
         # but lists are
-        self.assertEqual(sys.getsizeof([]), vsize('Pn') + gc_header_size)
+        self.assertEqual(sys.getsizeof([]), vsize('Pn', '') + gc_header_size)
 
     def test_errors(self):
         class BadSizeof:
@@ -1374,18 +1374,19 @@ class SizeofTest(unittest.TestCase):
 
     def test_default(self):
         size = test.support.calcvobjsize
-        self.assertEqual(sys.getsizeof(True), size('') + self.longdigit)
-        self.assertEqual(sys.getsizeof(True, -1), size('') + self.longdigit)
+        self.assertEqual(sys.getsizeof(True), size('', '') + self.longdigit)
+        self.assertEqual(sys.getsizeof(True, -1), size('', '') + self.longdigit)
 
     def test_objecttypes(self):
         # check all types defined in Objects/
         calcsize = struct.calcsize
         size = test.support.calcobjsize
         vsize = test.support.calcvobjsize
+        empty_vsize = vsize('', '')
         check = self.check_sizeof
         # bool
-        check(True, vsize('') + self.longdigit)
-        check(False, vsize('') + self.longdigit)
+        check(True, empty_vsize + self.longdigit)
+        check(False, empty_vsize + self.longdigit)
         # buffer
         # XXX
         # builtin_function_or_method
@@ -1394,12 +1395,12 @@ class SizeofTest(unittest.TestCase):
         samples = [b'', b'u'*100000]
         for sample in samples:
             x = bytearray(sample)
-            check(x, vsize('n2Pi') + x.__alloc__())
+            check(x, vsize('n2Pi', '') + x.__alloc__())
         # bytearray_iterator
         check(iter(bytearray()), size('nP'))
         # bytes
-        check(b'', vsize('n') + 1)
-        check(b'x' * 10, vsize('n') + 11)
+        check(b'', vsize('n', '') + 1)
+        check(b'x' * 10, vsize('n', '') + 11)
         # cell
         def get_cell():
             x = 42
@@ -1481,7 +1482,7 @@ class SizeofTest(unittest.TestCase):
         # float
         check(float(0), size('d'))
         # sys.floatinfo
-        check(sys.float_info, vsize('') + self.P * len(sys.float_info))
+        check(sys.float_info, empty_vsize + self.P * len(sys.float_info))
         # frame
         def func():
             return sys._getframe()
@@ -1510,10 +1511,10 @@ class SizeofTest(unittest.TestCase):
         import re
         check(re.finditer('',''), size('2P'))
         # list
-        check(list([]), vsize('Pn'))
-        check(list([1]), vsize('Pn') + 2*self.P)
-        check(list([1, 2]), vsize('Pn') + 2*self.P)
-        check(list([1, 2, 3]), vsize('Pn') + 4*self.P)
+        check(list([]), vsize('Pn', ''))
+        check(list([1]), vsize('Pn', '') + 2*self.P)
+        check(list([1, 2]), vsize('Pn', '') + 2*self.P)
+        check(list([1, 2, 3]), vsize('Pn', '') + 4*self.P)
         # sortwrapper (list)
         # XXX
         # cmpwrapper (list)
@@ -1523,13 +1524,13 @@ class SizeofTest(unittest.TestCase):
         # listreverseiterator (list)
         check(reversed([]), size('nP'))
         # int
-        check(0, vsize('') + self.longdigit)
-        check(1, vsize('') + self.longdigit)
-        check(-1, vsize('') + self.longdigit)
+        check(0, empty_vsize + self.longdigit)
+        check(1, empty_vsize + self.longdigit)
+        check(-1, empty_vsize + self.longdigit)
         PyLong_BASE = 2**sys.int_info.bits_per_digit
-        check(int(PyLong_BASE), vsize('') + 2*self.longdigit)
-        check(int(PyLong_BASE**2-1), vsize('') + 2*self.longdigit)
-        check(int(PyLong_BASE**2), vsize('') + 3*self.longdigit)
+        check(int(PyLong_BASE), empty_vsize + 2*self.longdigit)
+        check(int(PyLong_BASE**2-1), empty_vsize + 2*self.longdigit)
+        check(int(PyLong_BASE**2), empty_vsize + 3*self.longdigit)
         # module
         check(unittest, size('PnPPP'))
         # None
@@ -1582,12 +1583,12 @@ class SizeofTest(unittest.TestCase):
         # super
         check(super(int), size('3P'))
         # tuple
-        check((), vsize(''))
-        check((1,2,3), vsize('') + 3*self.P)
+        check((), empty_vsize)
+        check((1,2,3), empty_vsize + 3*self.P)
         # type
         # static type: PyTypeObject
         fmt = 'P2nPI13Pl4Pn9Pn12PIPc'
-        s = vsize('2P' + fmt)
+        s = vsize('2P' + fmt, '')
         check(int, s)
         # class
         s = vsize(fmt +                 # PyTypeObject
@@ -1598,6 +1599,7 @@ class SizeofTest(unittest.TestCase):
                   '2P'                  # PyBufferProcs
                   '6P'
                   '1PI'                 # Specializer cache
+                  , ''                  # fmt_items added after _align
                   )
         class newstyleclass(object): pass
         # Separate block for PyDictKeysObject with 8 keys and 5 entries
@@ -1698,7 +1700,7 @@ class SizeofTest(unittest.TestCase):
         # symtable entry
         # XXX
         # sys.flags
-        check(sys.flags, vsize('') + self.P * len(sys.flags))
+        check(sys.flags, vsize('', '') + self.P * len(sys.flags))
 
     def test_asyncgen_hooks(self):
         old = sys.get_asyncgen_hooks()

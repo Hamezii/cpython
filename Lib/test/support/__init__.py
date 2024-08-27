@@ -815,7 +815,7 @@ def calcobjsize(fmt):
     import struct
     return struct.calcsize(_header + fmt + _align)
 
-def calcvobjsize(fmt, fmt_items=''):
+def calcvobjsize(fmt, fmt_items):
     import struct
     return struct.calcsize(_vheader + fmt + _align + fmt_items)
 
