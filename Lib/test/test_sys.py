@@ -1373,9 +1373,12 @@ class SizeofTest(unittest.TestCase):
             sys.getsizeof(OverflowSizeof(-sys.maxsize - 1))
 
     def test_default(self):
-        size = test.support.calcvobjsize
-        self.assertEqual(sys.getsizeof(True), size('', '') + self.longdigit)
-        self.assertEqual(sys.getsizeof(True, -1), size('', '') + self.longdigit)
+        size = test.support.calcobjsize
+        # XXX-JL: size include 'P' due to _PyLongValue including
+        #   uintptr_t lv_tag, which is potentially something that could
+        #   be changed to a different type
+        self.assertEqual(sys.getsizeof(True), size('P') + self.longdigit)
+        self.assertEqual(sys.getsizeof(True, -1), size('P') + self.longdigit)
 
     def test_objecttypes(self):
         # check all types defined in Objects/
