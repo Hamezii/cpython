@@ -31,7 +31,7 @@ def requires_subinterpreters(func):
     return deco(func)
 
 
-DICT_KEY_STRUCT_FORMAT = 'n2BI2n'
+DICT_KEY_STRUCT_FORMAT = 'n3BI2n0P'
 
 class DisplayHookTest(unittest.TestCase):
 
